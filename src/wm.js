@@ -100,7 +100,7 @@ async function login() {
 // Résumé affiché sur la page du job GitHub (ou dans le terminal en local).
 function summary(md) {
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md + '\n');
-  else console.log(md);
+  console.log(md);
 }
 
 const esc = s => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ');
