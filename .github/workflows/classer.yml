@@ -17,7 +17,8 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write # branche « etat » : jeton de session chiffré
+  issues: write   # alerte si la session expire
 
 jobs:
   classer:
@@ -39,6 +40,7 @@ jobs:
         env:
           WM_REFRESH_TOKEN: ${{ secrets.WM_REFRESH_TOKEN }}
           WM_KEY: ${{ secrets.WM_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
           APERCU: ${{ inputs.apercu && '--apercu' || '' }}
         run: node src/classer.js $APERCU
       # Le jeton vient d'être remplacé par Supabase : on garde le nouveau, même si la suite a échoué.

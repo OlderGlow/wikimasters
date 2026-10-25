@@ -4,7 +4,7 @@ Ce repo fait tourner sur GitHub Actions trois commandes pour ta collection [Wiki
 
 ## Mise en place (une seule fois)
 
-La connexion par mot de passe de WikiMasters demande un captcha : un robot ne peut pas l'ouvrir. Le workflow reprend donc une **session ouverte une fois par toi** dans le navigateur, grâce à son jeton de renouvellement. Ensuite, il renouvelle ce jeton tout seul à chaque exécution. Il garde le nouveau jeton chiffré, avec la clé `WM_KEY`, dans le cache GitHub Actions.
+La connexion par mot de passe de WikiMasters demande un captcha : un robot ne peut pas l'ouvrir. Le workflow reprend donc une **session ouverte une fois par toi** dans le navigateur, grâce à son jeton de renouvellement. Ensuite, il renouvelle ce jeton tout seul à chaque exécution. Il garde le nouveau jeton chiffré, avec la clé `WM_KEY`, dans la branche `etat` du repo, qui n'expire pas, et dans le cache GitHub Actions en secours.
 
 1. Crée la clé de chiffrement. La commande génère une clé au hasard et l'enregistre sans l'afficher :
    ```bash
@@ -22,7 +22,7 @@ La connexion par mot de passe de WikiMasters demande un captcha : un robot ne pe
    ```
 6. Lance **Classer** avec la case « Aperçu seulement » cochée, pour vérifier que tout marche.
 
-Si un jour une exécution échoue avec « session refusée », il suffit de refaire les étapes 2 à 5 : le nouveau secret remplace l'ancien jeton. C'est le cas si le workflow n'a pas tourné pendant plus de 7 jours (le cache GitHub expire) ou si tu as cliqué sur « Déconnecter tous les appareils ».
+Si la session est un jour refusée, le workflow ouvre une issue « Session WikiMasters expirée », et tu reçois une notification GitHub. Il suffit alors de refaire les étapes 2 à 5 : le nouveau secret remplace l'ancien jeton, et l'issue se ferme toute seule à la connexion suivante. Ça ne devrait arriver que si tu cliques sur « Déconnecter tous les appareils » sur le site, ou si WikiMasters limite un jour la durée des sessions.
 
 GitHub masque les secrets dans les journaux, et les scripts n'affichent aucun jeton ni cookie.
 

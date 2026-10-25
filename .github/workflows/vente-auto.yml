@@ -18,8 +18,8 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
-  issues: write
+  contents: write # branche « etat » : jeton de session chiffré
+  issues: write   # alerte si la session expire
 
 jobs:
   vente:

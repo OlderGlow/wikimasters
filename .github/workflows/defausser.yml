@@ -24,7 +24,8 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write # branche « etat » : jeton de session chiffré
+  issues: write   # alerte si la session expire
 
 jobs:
   defausser:
@@ -45,6 +46,7 @@ jobs:
         env:
           WM_REFRESH_TOKEN: ${{ secrets.WM_REFRESH_TOKEN }}
           WM_KEY: ${{ secrets.WM_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
           NOMBRE: ${{ inputs.nombre }}
           CODE: ${{ inputs.code }}
           ETIQUETTE: ${{ inputs.etiquette }}
