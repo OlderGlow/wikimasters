@@ -53,7 +53,9 @@ const TOUS = process.argv.includes('--tous');
   const price = {};
   for (const c of [...new Set(spares.map(x => x.card_id))]) {
     await pause();
-    price[c] = (await get('/api/marketplace/cards/' + c + '/sales?scope=summary')).summary || {};
+    // Certaines cartes n'ont pas de page marché (« Carte introuvable ») : on les compte comme jamais vendues.
+    try { price[c] = (await get('/api/marketplace/cards/' + c + '/sales?scope=summary')).summary || {}; }
+    catch (e) { if (!/HTTP 404/.test(e.message)) throw e; price[c] = {}; }
   }
   const unsold = [], all = [];
   for (const x of spares) {

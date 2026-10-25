@@ -81,7 +81,11 @@ async function openPause(why) {
     let p = st.prices[r.card_id];
     if (!p) {
       await pause();
-      p = st.prices[r.card_id] = {at: Date.now(), sum: (await get('/api/marketplace/cards/' + r.card_id + '/sales?scope=summary')).summary || {}};
+      // Certaines cartes n'ont pas de page marché (« Carte introuvable ») : on les saute.
+      let sum = {};
+      try { sum = (await get('/api/marketplace/cards/' + r.card_id + '/sales?scope=summary')).summary || {}; }
+      catch (e) { if (!/HTTP 404/.test(e.message)) throw e; }
+      p = st.prices[r.card_id] = {at: Date.now(), sum};
       lookups++;
     }
     const x = p.sum[r.cards.rarity];
