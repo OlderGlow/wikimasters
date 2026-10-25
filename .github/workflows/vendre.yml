@@ -1,0 +1,63 @@
+name: Vendre les doublons
+
+# Met aux enchères les exemplaires en trop, au prix moyen de leurs ventes passées, en deux exécutions :
+#   1. lancer sans nombre ni code → aperçu dans le résumé du job, avec le nombre et le code ;
+#   2. relancer avec ce nombre, ce code et les mêmes options → mise en vente, seulement si la liste n'a pas changé.
+on:
+  workflow_dispatch:
+    inputs:
+      nombre:
+        description: "Nombre de cartes de l'aperçu (vide = aperçu)"
+        required: false
+        default: ''
+      code:
+        description: "Code de confirmation de l'aperçu (vide = aperçu)"
+        required: false
+        default: ''
+      duree:
+        description: "Durée des enchères (minutes)"
+        type: choice
+        options: ['720', '360', '180', '60', '30', '10']
+        default: '720'
+      tous:
+        description: "Inclure les doublons jamais vendus (mise 1)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: wikimasters
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  vendre:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Jeton de session de l'exécution précédente (chiffré avec WM_KEY).
+      - uses: actions/cache/restore@v4
+        with:
+          path: .session
+          key: wm-session-${{ github.run_id }}
+          restore-keys: wm-session-
+      - name: ${{ inputs.nombre == '' && 'Aperçu' || 'Mise en vente' }}
+        env:
+          WM_REFRESH_TOKEN: ${{ secrets.WM_REFRESH_TOKEN }}
+          WM_KEY: ${{ secrets.WM_KEY }}
+          NOMBRE: ${{ inputs.nombre }}
+          CODE: ${{ inputs.code }}
+          DUREE: ${{ inputs.duree }}
+          TOUS: ${{ inputs.tous && '--tous' || '' }}
+        run: node src/vendre.js --nombre "$NOMBRE" --code "$CODE" --duree "$DUREE" $TOUS
+      # Le jeton vient d'être remplacé par Supabase : on garde le nouveau, même si la suite a échoué.
+      - if: always() && hashFiles('.session/jeton.enc') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .session
+          key: wm-session-${{ github.run_id }}-${{ github.run_attempt }}

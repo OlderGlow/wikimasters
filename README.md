@@ -1,6 +1,6 @@
 # WikiMasters dans le cloud
 
-Ce repo fait tourner sur GitHub Actions deux commandes pour ta collection [WikiMasters](https://www.wiki-masters.com) : le classement des nouvelles cartes et la défausse des cartes « à classer ». C'est la même logique que les commandes Claude Code `/classer-wiki-masters` et `/defausser-cartes`, mais sans navigateur : le workflow reprend une session WikiMasters que tu as ouverte une fois, grâce à un jeton gardé dans les secrets du repo.
+Ce repo fait tourner sur GitHub Actions trois commandes pour ta collection [WikiMasters](https://www.wiki-masters.com) : le classement des nouvelles cartes, la défausse des cartes « à classer » et la vente des doublons. C'est la même logique que les commandes Claude Code `/classer-wiki-masters`, `/defausser-cartes` et `/vendre-doublons`, mais sans navigateur : le workflow reprend une session WikiMasters que tu as ouverte une fois, grâce à un jeton gardé dans les secrets du repo.
 
 ## Mise en place (une seule fois)
 
@@ -32,6 +32,7 @@ GitHub masque les secrets dans les journaux, et les scripts n'affichent aucun je
 |---|---|---|
 | **Classer** | tous les jours vers 7 h, ou à la demande | étiquette les cartes qui n'ont encore aucune étiquette, puis publie la répartition et la liste des « à classer » dans le résumé du job |
 | **Défausser** | à la demande seulement | en deux exécutions : un aperçu, puis la défausse confirmée |
+| **Vendre les doublons** | à la demande seulement | en deux exécutions : un aperçu, puis la mise aux enchères confirmée |
 | **Tests** | à chaque modification des règles | vérifie `src/classify.js` sur `test/cases.txt` |
 
 Les résultats s'affichent dans le **résumé** de chaque exécution, dans l'onglet Actions.
@@ -46,6 +47,17 @@ La défausse est **définitive** : chaque carte rapporte 1 wikibidou et dispara�
 Le code est une empreinte de la liste. Si une carte a été ajoutée, retirée ou reclassée entre les deux exécutions, il ne correspond plus et rien n'est défaussé : il suffit de refaire un aperçu.
 
 Ne sont jamais défaussées : les cartes favorites, celles engagées dans un échange, les raretés L, UR et SR, les brillantes et les cartes en plusieurs exemplaires.
+
+### Vendre les doublons en deux temps
+
+Chaque exemplaire en trop est mis aux enchères, avec pour mise de départ le **prix moyen** de ses ventes passées (même rareté). Tu gardes toujours un exemplaire normal de chaque carte. Les brillantes, les favoris, les cartes engagées dans un échange et celles déjà en vente ne sont jamais mis aux enchères.
+
+1. Lance **Vendre les doublons** sans nombre ni code, en choisissant la durée des enchères (12 h par défaut). Si tu veux aussi les doublons jamais vendus, coche « tous » : leur mise de départ sera de 1. Le résumé liste les cartes avec leur mise, et donne un **nombre** et un **code**.
+2. Si la liste te convient, relance le workflow avec ce nombre, ce code et **les mêmes options**.
+
+Le code couvre les cartes, leurs mises et la durée. Si l'un change entre les deux exécutions, rien n'est mis en vente. La liste est limitée aux places d'enchère libres : 10 pour un compte Pro, 5 sinon.
+
+Si le site demande une vérification humaine, le workflow s'arrête : mets toi-même une carte aux enchères sur le site, puis refais un aperçu.
 
 ## Discrétion
 
