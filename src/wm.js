@@ -16,16 +16,17 @@ const req = {wikimasters: 0, wikipedia: 0, supabase: 0};
 
 // Requête avec reprise : 3 essais espacés de 30 s puis 60 s sur 429/5xx/réseau, sinon arrêt.
 async function call(kind, url, opts = {}) {
+  let last = 'réseau';
   for (let attempt = 0; attempt < 3; attempt++) {
     let res = null;
-    try { res = await fetch(url, opts); req[kind]++; } catch (e) {}
+    try { res = await fetch(url, opts); req[kind]++; last = 'HTTP ' + res.status; } catch (e) { last = 'réseau : ' + (e.cause?.code || e.message); }
     if (res && res.ok) return res;
     if (res && res.status < 500 && res.status !== 429) throw new Error(kind + ' HTTP ' + res.status + ' ' + (await res.text()).slice(0, 150));
     if (attempt === 2) break;
     const ra = res && Number(res.headers.get('Retry-After'));
     await sleep(ra ? ra * 1000 : 30000 * (attempt + 1));
   }
-  throw new Error(kind + ' : serveur indisponible après 3 essais');
+  throw new Error(kind + ' : serveur indisponible après 3 essais (' + last + ', ' + url.replace(/\?.*/, '').replace(/^https:\/\/[^/]+/, '') + ')');
 }
 
 // Clé publique (anon) de Supabase, présente dans le code JavaScript du site.
