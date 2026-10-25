@@ -33,6 +33,7 @@ GitHub masque les secrets dans les journaux, et les scripts n'affichent aucun je
 | **Classer** | tous les jours vers 7 h, ou à la demande | étiquette les cartes qui n'ont encore aucune étiquette, puis publie la répartition et la liste des « à classer » dans le résumé du job |
 | **Défausser** | à la demande seulement | en deux exécutions : un aperçu, puis la défausse confirmée |
 | **Vendre les doublons** | à la demande seulement | en deux exécutions : un aperçu, puis la mise aux enchères confirmée |
+| **Vente auto** | toutes les 3 h | remplit les places d'enchère libres avec des cartes C, PC ou R au hasard, pour 30 min |
 | **Tests** | à chaque modification des règles | vérifie `src/classify.js` sur `test/cases.txt` |
 
 Les résultats s'affichent dans le **résumé** de chaque exécution, dans l'onglet Actions.
@@ -58,6 +59,24 @@ Chaque exemplaire en trop est mis aux enchères, avec pour mise de départ le **
 Le code couvre les cartes, leurs mises et la durée. Si l'un change entre les deux exécutions, rien n'est mis en vente. La liste est limitée aux places d'enchère libres : 10 pour un compte Pro, 5 sinon.
 
 Si le site demande une vérification humaine, le workflow s'arrête : mets toi-même une carte aux enchères sur le site, puis refais un aperçu.
+
+### Vente auto
+
+Toutes les 3 heures, le workflow remplit les places d'enchère libres avec des cartes **C, PC ou R** tirées au hasard. Chaque enchère dure **30 minutes**, avec pour mise de départ **80 % du prix moyen** de la carte.
+
+- Seules les cartes vendues au moins 3 fois sont mises en vente, pour que le prix moyen soit fiable.
+- Jamais de L, UR ni SR, de favori, de brillante, de carte engagée dans un échange ou déjà en vente.
+- **40 enchères par jour au plus**, à l'heure de Paris.
+- Le résumé de chaque exécution liste les cartes mises en vente avec leur mise.
+
+Une carte unique peut partir : seuls les favoris sont protégés. Mets en favori sur le site les cartes C, PC ou R que tu veux garder.
+
+Si le site demande une vérification humaine, le robot s'arrête et ouvre une issue « Vente auto en pause ». Tu reçois une notification GitHub. Mets toi-même une carte aux enchères sur le site pour passer la vérification, puis ferme l'issue : la vente reprend au passage suivant.
+
+**Pour tout arrêter :** dans Settings → Secrets and variables → Actions → **Variables**, crée la variable `VENTE_AUTO` avec la valeur `off`. Supprime-la pour relancer. Depuis un terminal :
+```bash
+gh variable set VENTE_AUTO --body off --repo OlderGlow/wikimasters
+```
 
 ## Discrétion
 
