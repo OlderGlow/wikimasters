@@ -28,10 +28,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # Jeton de session de l'exécution précédente (chiffré avec WM_KEY).
+      - uses: actions/cache/restore@v4
+        with:
+          path: .session
+          key: wm-session-${{ github.run_id }}
+          restore-keys: wm-session-
       - run: node test/cases.js
       - name: Classer
         env:
-          WM_EMAIL: ${{ secrets.WM_EMAIL }}
-          WM_PASSWORD: ${{ secrets.WM_PASSWORD }}
+          WM_REFRESH_TOKEN: ${{ secrets.WM_REFRESH_TOKEN }}
+          WM_KEY: ${{ secrets.WM_KEY }}
           APERCU: ${{ inputs.apercu && '--apercu' || '' }}
         run: node src/classer.js $APERCU
+      # Le jeton vient d'être remplacé par Supabase : on garde le nouveau, même si la suite a échoué.
+      - if: always() && hashFiles('.session/jeton.enc') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .session
+          key: wm-session-${{ github.run_id }}-${{ github.run_attempt }}
