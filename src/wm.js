@@ -14,19 +14,23 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const pause = () => sleep(2500 + Math.random() * 1000);
 const req = {wikimasters: 0, wikipedia: 0, supabase: 0};
 
-// Requête avec reprise : 3 essais espacés de 30 s puis 60 s sur 429/5xx/réseau, sinon arrêt.
+// Requête avec reprise sur 429/5xx/réseau, sinon arrêt. WikiMasters : 3 essais espacés de 30 s puis 60 s,
+// pour rester discret. Supabase et Wikipédia : 5 essais, le premier vite, car leurs erreurs 525 (poignée
+// de main TLS ratée derrière Cloudflare) durent souvent quelques secondes seulement.
+const WAITS = {wikimasters: [30000, 60000], supabase: [5000, 15000, 30000, 60000], wikipedia: [5000, 15000, 30000, 60000]};
 async function call(kind, url, opts = {}) {
   let last = 'réseau';
-  for (let attempt = 0; attempt < 3; attempt++) {
+  const waits = WAITS[kind] || WAITS.wikimasters;
+  for (let attempt = 0; attempt <= waits.length; attempt++) {
     let res = null;
     try { res = await fetch(url, opts); req[kind]++; last = 'HTTP ' + res.status; } catch (e) { last = 'réseau : ' + (e.cause?.code || e.message); }
     if (res && res.ok) return res;
     if (res && res.status < 500 && res.status !== 429) throw new Error(kind + ' HTTP ' + res.status + ' ' + (await res.text()).slice(0, 150));
-    if (attempt === 2) break;
+    if (attempt === waits.length) break;
     const ra = res && Number(res.headers.get('Retry-After'));
-    await sleep(ra ? ra * 1000 : 30000 * (attempt + 1));
+    await sleep(ra ? ra * 1000 : waits[attempt]);
   }
-  throw new Error(kind + ' : serveur indisponible après 3 essais (' + last + ', ' + url.replace(/\?.*/, '').replace(/^https:\/\/[^/]+/, '') + ')');
+  throw new Error(kind + ' : serveur indisponible après ' + (waits.length + 1) + ' essais (' + last + ', ' + url.replace(/\?.*/, '').replace(/^https:\/\/[^/]+/, '') + ')');
 }
 
 // Clé publique (anon) de Supabase, présente dans le code JavaScript du site.
