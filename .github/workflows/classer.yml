@@ -1,0 +1,37 @@
+name: Classer
+
+# Étiquette les nouvelles cartes sans étiquette, chaque jour et à la demande.
+on:
+  schedule:
+    - cron: '17 6 * * *' # tous les jours vers 7 h 17 (heure de Paris en hiver)
+  workflow_dispatch:
+    inputs:
+      apercu:
+        description: "Aperçu seulement (ne rien écrire)"
+        type: boolean
+        default: false
+
+# Une seule commande WikiMasters à la fois, pour rester discret.
+concurrency:
+  group: wikimasters
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  classer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node test/cases.js
+      - name: Classer
+        env:
+          WM_EMAIL: ${{ secrets.WM_EMAIL }}
+          WM_PASSWORD: ${{ secrets.WM_PASSWORD }}
+          APERCU: ${{ inputs.apercu && '--apercu' || '' }}
+        run: node src/classer.js $APERCU

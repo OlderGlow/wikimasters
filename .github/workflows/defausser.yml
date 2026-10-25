@@ -1,0 +1,45 @@
+name: Défausser
+
+# Défausse les cartes « à classer » (+1 wikibidou chacune, définitif), en deux exécutions :
+#   1. lancer sans rien remplir → aperçu dans le résumé du job, avec le nombre et le code ;
+#   2. relancer avec ce nombre et ce code → défausse, seulement si la liste n'a pas changé.
+on:
+  workflow_dispatch:
+    inputs:
+      nombre:
+        description: "Nombre de cartes de l'aperçu (vide = aperçu)"
+        required: false
+        default: ''
+      code:
+        description: "Code de confirmation de l'aperçu (vide = aperçu)"
+        required: false
+        default: ''
+      etiquette:
+        description: "Étiquette à défausser"
+        required: false
+        default: 'à classer'
+
+concurrency:
+  group: wikimasters
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  defausser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: ${{ inputs.nombre == '' && 'Aperçu' || 'Défausse' }}
+        env:
+          WM_EMAIL: ${{ secrets.WM_EMAIL }}
+          WM_PASSWORD: ${{ secrets.WM_PASSWORD }}
+          NOMBRE: ${{ inputs.nombre }}
+          CODE: ${{ inputs.code }}
+          ETIQUETTE: ${{ inputs.etiquette }}
+        run: node src/defausser.js --nombre "$NOMBRE" --code "$CODE" --etiquette "$ETIQUETTE"

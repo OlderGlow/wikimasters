@@ -1,0 +1,194 @@
+# Cas de non-régression du classifieur : titre | description | tags attendus (dans l'ordre).
+# Chaque ligne vient d'une erreur réelle corrigée ou d'un cas typique. Lancer : bash test.sh
+Bouscarle de Cetti | espèce d'oiseaux passériformes de la famille des cettiidae | animal
+Givors | commune française de la métropole de Lyon | ville
+Équipe de France espoirs de football | équipe nationale de football | sport
+Les Républicains (Nouvelle-Calédonie) | parti politique de Nouvelle-Calédonie | politique
+Mozart | compositeur autrichien | personnalité, musique
+Lake Wylie | census-designated place | ville
+Grand nègre rifain | espèce de lépidoptère du genre Hipparchia | animal
+Doug Ducey | gouverneur de l'Arizona | personnalité, politique
+Andrea Scacciati | peintre italien | personnalité, art
+Ligne 272 (Infrabel) | ligne de chemin de fer belge | train
+Serebryanka (navire) | navire arctique russe | bateau
+Heracleum sphondylium | espèce de plantes | plante
+Mbappé | page d'homonymie de Wikimedia | à classer
+Le Remplaçant (série télévisée) |  | série-tv
+Château de Chambord | château français | architecture
+Bœuf de Kobe | cuisine japonaise, type de viande de bœuf spéciale | alimentation
+Avatar (série d'animation) | série d'animation américaine | série-tv
+Université de Lyon | université française | éducation
+Ocean Gate | établissement humain, comté d'Ocean, New Jersey, aux États-Unis | géographie, ville
+La Nuit des temps (roman graphique) | album de bande dessinée de Christian De Metter | littérature
+Nancy Segal | psychologue américaine | personnalité, médecine
+Barrage d'İvriz | barrage en Turquie | géographie
+Marais de Fucecchio | marais en Italie | géographie
+Michel de Vascosan | imprimeur français | personnalité, littérature
+Gottfried Banfield | baron, dernier chevalier de l'ordre de Marie-Thérèse | personnalité, histoire
+Consonne spirante alvéolaire voisée | son consonantique | langue
+Festival Hypermondes | festival de cultures de l'imaginaire à Mérignac, en France | art
+DJ Snake | disc-jockey franco-algérien | personnalité, musique
+Dalälven | cours d’eau de Suède | géographie
+Kiyou Shimizu | karatéka japonaise | personnalité, sport
+Eisenfunk | groupe allemand | musique
+Gerdesiidae | famille d'opilions | animal
+Antoine Curé | trompettiste français | personnalité, musique
+Février 1780 | mois de 1780 | histoire
+Apokóronas | dème en Crète, en Grèce | ville
+Col des Issartets | col français | géographie
+Cornalin | cépage | alimentation
+Cadavre non identifié | terme utilisé pour décrire un cadavre dont l'identité ne peut être établie par la médecine légale | médecine
+Religieuse (pâtisserie) | pâtisserie | alimentation
+Port Hardy | ville en Colombie-Britannique (Canada) | ville
+Le Son c'est la guerre | EP de Rohff, sorti en 2003 | musique
+Lines from the battle of the Nile | cantate pour soprano accompagnée au pianoforte, de Haydn | musique
+Behind the Front (album) | album de The Black Eyed Peas | musique
+Otto Rank | psychanalyste autrichien | personnalité, médecine
+Pro Bowl 2000 | Le AFC-NFC Pro Bowl 2000 est le match des étoiles de football américain | sport
+Arturo Sosa | supérieur général de la Compagnie de Jésus | personnalité, religion
+Tesson (Charente-Maritime) | commune française du département de la Charente-Maritime | géographie, ville
+Château de Holt | château britannique, pays de Galles | architecture
+Quai de la Boverie | Le quai de la Boverie est une artère de la ville belge de Liège | ville
+Tableau des monuments historiques protégés en Belgique | page de liste de Wikimédia | architecture, histoire
+Dominique Auvray | monteuse française | personnalité, film
+Luis Lehnert | coureur du combiné nordique allemand | personnalité, sport
+Lamproie du Nord | espèce de lamproies | animal
+Villa Bella Vista | villa à Lion-sur-Mer (Calvados) | architecture
+Einstein Telescope | projet européen de détecteur d'ondes gravitationnelles | science
+Lorut | communauté arménienne | ville
+The New York Times Company | groupe de médias | entreprise
+Groupe de NGC 5797 | groupe de galaxies | espace
+Bilan saison par saison du Racing Club de Strasbourg | page de liste de Wikimédia | sport
+Une famille pas si parfaite | Une famille pas si parfaite (Si nos dejan) est une telenovela américaine | série-tv
+2e étape du Tour de France 2008 | étape du Tour de France 2008 | sport
+Phantosmie | hallucination olfactive | médecine
+Feu noir | variété de lapin nains | animal
+Fibré en coniques | variété algébrique | science
+Albert Henraux | collectionneur et administrateur français (1881-1953) | personnalité, art
+Saison 2 de Breaking Bad | saison de la série télévisée Breaking Bad | série-tv
+Mase | village et ancienne commune de Mont-Noble dans le canton du Valais | ville, géographie
+La Chupicuaro | La Chupicuaro est une statuette féminine en terre cuite, réalisée par la culture Chupícuaro | art
+Derby de Munich | derby | sport
+Molière seul(e) en scène | catégorie d'une distinction | art
+Gustav Weißkopf | pionnier de l'aviation | personnalité, aviation
+1933 au Canada | Cet article traite des événements survenus en 1933 au Canada | histoire
+Feng Bin | Feng Bin (née le 3 avril 1994) est une athlète chinoise, spécialiste du lancer du disque | personnalité, sport
+Grand Prix automobile d'Italie 1937 | course du Championnat d'Europe des pilotes | sport
+Aéroport international Shaikh Zayed | aéroport desservant Rahim Yar Khan, Pakistan | aviation
+Las Majadas (paroisse civile) | Las Majadas est l'une des cinq divisions territoriales de la commune | géographie, ville
+Les Trois Sœurs | pièce d'Anton Tchekhov, créée en 1901 | littérature, art
+Littérature du sida | La littérature du sida désigne l'ensemble des textes littéraires | littérature
+Homme d'Eliye Springs | Fossile d'Homo sapiens trouvé au Kenya | histoire
+Il Cittadino | Il Cittadino est un quotidien italien | littérature
+Geodia ewok | espèce d'éponge | animal
+Mary Jane Rathbun | carcinologiste américaine (1860-1943) | personnalité, science, animal
+Lutte contre la mafia | La lutte contre la mafia est l'ensemble des dispositifs judiciaires et policiers | crime
+Premio Roma | Le Prix de Rome est une course hippique de plat se déroulant à Rome | sport
+Gfs.bern | institut de sondage | entreprise
+Portrait de Gustave Chaudey | Portrait de Gustave Chaudey est un tableau réalisé vers 1870 par le peintre Gustave Courbet | art
+Bourgogne côte saint-jacques | région viticole | géographie, alimentation
+Bonne de Beugny | variété de poire | alimentation, plante
+Emmanuel Pisani | dominicain français | personnalité, religion
+Frank Warner | concepteur et monteur sonore américain | personnalité, film
+Ed Hawkins | climatologue | personnalité, science
+Meonware | Les Meonware sont une tribu anglo-saxonne d'origine jute | histoire
+Liste des gouverneurs actuels des préfectures du Japon | page de liste de Wikimédia | politique
+Paul Alexis | homme de lettres français | personnalité, littérature
+Tour de Romandie 2024 | course cycliste en Suisse romande | sport
+Station polaire polonaise d'Hornsund | institut de recherche en Norvège | science
+Famille Joubert-Bonnaire | La famille Joubert-Bonnaire est une famille française éteinte d'industriels | histoire
+Mehmed III Giray | Mehmed III Giray (tué en 1628) est un khan de Crimée | personnalité, histoire
+Myles Amine | lutteur saint-marinais | personnalité, sport
+Richard Denys | négociant et colon au Québec | personnalité, histoire
+Accord d'Achnacarry | L'accord d'Achnacarry est un cartel pétrolier conclu en 1928 | histoire
+Sillon interlabial | Le sillon interlabial ou sillon vulvaire est un sillon anatomique | médecine
+Notre-Dame-de-la-Mer | commune nouvelle des Yvelines, France | ville
+Ikarus | constructeur hongrois de bus et de trolleybus | entreprise, automobile
+Verre flotté | type de verre | technologie
+16e étape du Tour d'Italie 2009 | étape du Tour d'Italie 2009 | sport
+Djebel Chélia | chaîne de montagnes en Algérie | géographie
+Marina Berlusconi | femme d'affaire Italienne | personnalité, entreprise
+Potentialisation à long terme | En neurosciences, la potentialisation à long terme est un renforcement synaptique | science, médecine
+Liste des fortifications de Vauban | page de liste de Wikimédia | architecture, militaire
+NoName057(16) | groupe de hackers pro-russes | informatique, crime
+Digénite | sulfure de cuivre (I) partiellement oxydé | science
+Mie Miki | accordéoniste japonaise | personnalité, musique
+Nicanor de Stagire | envoyé d'Alexandre, fils adoptif d'Aristote | personnalité, politique
+Monospace hospitalier | type architectural | architecture
+Microrégion de Conceição do Mato Dentro | La microrégion de Conceição do Mato Dentro est l'une des huit microrégions de l'État | géographie
+Pourim katan | Pourim katan est une fête juive mineure | religion
+Thubten Gyatso | 13e dalaï-lama, chef temporel et spirituel tibétain | personnalité, religion
+Giovanni Volta | évèque catholique italien | personnalité, religion
+Maille de Wigner-Seitz | La maille de Wigner-Seitz est une maille élémentaire | science
+Bol de Benty Grange | artéfact anglo-saxon | histoire
+Skepticon | Skepticon est l'une des plus grandes conventions sceptiques | science
+Cercle de Bintagoungou | cercle du Mali | géographie, ville
+Charles-Gilbert de La Chapelle | militaire français | personnalité, militaire
+Ruisseau de la Geinde | Le ruisseau de la Geinde est un ruisseau français | géographie
+Assenede (homonymie) | Assenede est un nom de lieu notamment porté par : Assenede, commune de Flandre | à classer
+Henry Beaumont Herts | architecte américain | personnalité, architecture
+Loi de Bates | loi de probabilité | science
+Albula/Alvra | commune politique située dans la région d'Albula, dans le canton des Grisons | géographie, ville
+Atol (opticien) | chaîne d'opticiens français | entreprise
+Clan des Corleonesi | Clan mafieux sicilien de la Cosa Nostra | histoire, crime
+Drapeau de l'Irak | drapeau national | pays
+Laurier Québec | vaste centre commercial à Québec | économie, entreprise
+Forme normale conjonctive | normalisation d'une expression logique qui est une conjonction | science
+Éclipse lunaire du 7 août 2017 | éclipse lunaire partielle | espace
+William Alphonso Murrill | mycologue américain (1869-1957) | personnalité, science, plante
+Gastrotheca dysprosita | espèce d'anoures | animal
+Forges Delaire | Les Forges Delaire est une ancienne usine de coutellerie | entreprise
+Adele Addison | artiste lyrique américaine | personnalité, art, musique
+Ilesa Ouest | zone de gouvernement local nigériane | ville
+Tom Duquesnoy | pratiquant français d'arts martiaux mixtes | personnalité, sport
+Apollo 1 | premier vol du programme Apollo | aviation, espace
+Joëlle Pineau | chercheuse canadienne | personnalité
+Test de Shapiro-Wilk | En statistique, le test de Shapiro–Wilk teste l'hypothèse nulle | science
+Reliques de la Mort | univers de Harry Potter | littérature
+Élections fédérales canadiennes de 2008 | élection des députés siégeant à la Chambre des communes du Canada | politique
+Saucisse de Vienne | saucisse d'Autriche | alimentation
+Entier de Gauss | Nombre complexe dont les parties réelle et imaginaire sont des entiers | science
+Jozef Gabčík | militaire slovaque | personnalité, militaire
+Ismaïl Fathali | général tunisien | personnalité, militaire
+Liste des lignes à grande vitesse en Espagne | page de liste de Wikimédia | train
+2026 en Guinée | Cet article traite des événements qui se sont produits durant l'année 2026 en Guinée | histoire
+Prise d'otages du siège de l'OPEP à Vienne | prise d'otages en 1975 | crime
+Whyzdom | groupe de symphonic metal français | musique
+Noir Désir Intégrale | compilation de Noir Désir, sortie en 2020 | musique
+Cryptophyta | division d'algues | plante
+Hôpital universitaire de Bâle | hôpital universitaire de la ville de Bâle, Suisse | médecine, ville
+RABe 522 | Automotrice électrique construite par le suisse Stadler | train
+James Boarman | criminel américain | personnalité, crime
+César Girón (matador) | matador | personnalité, sport
+Centre hospitalier de Belfort | ancien centre hospitalier en France | médecine
+AL-KO | holding allemande du secteur de la mécanique | entreprise
+Saison 2018 de l'équipe cycliste Gazprom-RusVelo | saison 2018 de l'équipe cycliste Gazprom-RusVelo | sport
+Brigade 2506 | formation paramilitaire d'exilés cubains anti-castristes | militaire
+Chœur de l'Orchestre de Paris | chœur symphonique français | musique
+Hélène Salomon-Watson | triathlète française | personnalité, sport
+Seigneurie de Pokemouche | La seigneurie de Pokemouche était une seigneurie de la Nouvelle-France | histoire
+Sh2-133 | nébuleuse en émission | espace
+Stugun | unité urbaine suédoise | ville
+Théorème de Don Chakerian | Soit un ensemble d'au moins trois points du plan | science
+Joseph Rumeau | prélat catholique | personnalité, religion
+Enrique Plantey | sportif | personnalité, sport
+Victor Santos | fondeur brésilien | personnalité, sport
+Toriyama Sekien | artiste japonais | personnalité, art
+Culbutage | mouvement désordonné d'un véhicule spatial autour de son centre | espace
+Piste olympique Eugenio-Monti | piste de bobsleigh | sport
+Wilhelm Barthlott | botaniste allemand | personnalité, plante, science
+Caleana major | espèce d'orchidées | plante
+Daniel Larimer | informaticien américain | personnalité, informatique
+Laosuchus | genre éteint de chroniosuchiens | animal
+Sentier Josémont | sentier de randonnée à La Réunion | géographie
+Tour d'Algérie 2001 | Le Tour d'Algérie 2001 se déroule du 29 avril au 1er mai | sport
+Bataille de Gjorm | 1943 | guerre
+RAS-1 Getta | hydravion roumain de reconnaissance de l'entre-deux-guerres | aviation
+Bernard Moullier | sauteur à ski français | personnalité, sport
+Melanie Barbezat | Melanie Barbezat, née le 10 août 1991, est une curleuse suisse | personnalité, sport
+Liste des parcs d'État de l'Oklahoma | page de liste de Wikimédia | nature
+Laure Colladant | pianofortiste française | personnalité, musique
+Girondien | Le Girondien est une division stratigraphique obsolète | science
+Bataille de Krasnohorivka | affrontement en 2024 à l'ouest de Donetsk | guerre
+LION2 | câble sous-marin de l'océan Indien | technologie, géographie
+Walter Glasgow | Walter Glasgow est un skipper américain | personnalité, sport, bateau

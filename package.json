@@ -1,0 +1,11 @@
+{
+  "name": "wikimasters-cloud",
+  "private": true,
+  "description": "Classement et défausse des cartes WikiMasters, exécutés par GitHub Actions",
+  "engines": {"node": ">=20"},
+  "scripts": {
+    "test": "node test/cases.js",
+    "classer": "node src/classer.js",
+    "defausser": "node src/defausser.js"
+  }
+}
