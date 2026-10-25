@@ -133,14 +133,24 @@ async function login() {
   const seed = (process.env.WM_REFRESH_TOKEN || '').trim(), pass = process.env.WM_KEY || '';
   if (!seed || !pass) throw new Error('secrets WM_REFRESH_TOKEN et WM_KEY absents : voir « Mise en place » dans le README');
   const key = await anonKey();
-  const res = await fetch(SUPA + '/auth/v1/token?grant_type=refresh_token', {method: 'POST',
-    headers: {apikey: key, 'Content-Type': 'application/json'}, body: JSON.stringify({refresh_token: await loadToken(seed, pass)})});
-  req.supabase++;
-  const sess = await res.json().catch(() => ({}));
+  const token = await loadToken(seed, pass);
+  // Erreurs serveur passagères (5xx, réseau) : on réessaie avec le même jeton. Supabase accepte de le revoir
+  // quelques secondes après l'avoir remplacé, d'où un premier essai rapide.
+  let res = null, sess = {};
+  for (const wait of [0, 4000, 30000, 60000]) {
+    if (wait) await sleep(wait);
+    try {
+      res = await fetch(SUPA + '/auth/v1/token?grant_type=refresh_token', {method: 'POST',
+        headers: {apikey: key, 'Content-Type': 'application/json'}, body: JSON.stringify({refresh_token: token})});
+      req.supabase++;
+      sess = await res.json().catch(() => ({}));
+    } catch (e) { res = null; }
+    if (res && res.status < 500) break;
+  }
+  if (!res || res.status >= 500) throw new Error('Supabase indisponible (' + (res ? 'HTTP ' + res.status : 'réseau') + ') : réessayer plus tard, la session n\'est pas en cause');
   if (!res.ok || !sess.access_token) {
     const why = sess.error_description || sess.msg || sess.error || ('HTTP ' + res.status);
-    // Une erreur serveur passagère n'est pas une session expirée.
-    if (res.status >= 400 && res.status < 500) await expiredIssue(true, why).catch(() => {});
+    await expiredIssue(true, why).catch(() => {});
     throw new Error('session refusée : ' + why + ' → recréer le jeton WM_REFRESH_TOKEN (voir le README)');
   }
   await saveToken(seed, pass, sess.refresh_token); // tout de suite, avant toute autre requête
