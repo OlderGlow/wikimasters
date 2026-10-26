@@ -25,7 +25,7 @@ const PALETTE = ['#f472b6', '#c084fc', '#a78bfa', '#818cf8', '#60a5fa', '#38bdf8
   const cards = new Map();
   for (let page = 0; page < 100; page++) {
     await pause();
-    const d = await (await call('wikimasters', BASE + '/api/my-collection?sort=rarity&untagged=1&stats=0&page=' + page, {headers: s.site})).json();
+    const d = await (await call('wikimasters', BASE + '/api/my-collection?untagged=1&stats=0&page=' + page, {headers: s.site})).json();
     if (!Array.isArray(d.collection)) throw new Error('réponse inattendue de /api/my-collection : session non reconnue par le site ?');
     for (const uc of d.collection) cards.set(uc.id, {t: uc.card.wikipedia_title, d: uc.card.category || ''});
     if (d.collection.length < 50) break;

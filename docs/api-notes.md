@@ -6,7 +6,7 @@ Aucune API publique : ce sont les appels que fait le site lui-même. L'authentif
 
 - `GET https://www.wiki-masters.com/api/my-collection?page=<n>` : 50 cartes par page, **les pages commencent à 0**, pas de paramètre de taille trouvé. 175 pages (0 à 174) pour 8 726 cartes. Les pages lointaines sont plus lentes (5 à 10 s).
   - `&untagged=1` : seulement les cartes sans étiquette (utile pour reprendre après un étiquetage).
-  - `&sort=rarity` : tri utilisé par l'interface.
+  - `&sort=rarity` : tri utilisé par l'interface. **À éviter** : depuis le 26 octobre 2026 (≈ 11 000 cartes), il fait expirer la requête (504) ; sans tri, la même page répond en 5 à 6 s.
 - Le serveur sature parfois (HTTP 500 « overflow », 503, 504) : attendre une minute avant de réessayer.
   - `collection[]` : `id` (user_card), `card_id`, `tags[]`, `starred`, `count`, `card{ wikipedia_title, category, rarity, wikipedia_url, … }`.
   - `card.category` = description courte façon Wikidata (« acteur américain »). Vide pour ~20 % des cartes.

@@ -32,7 +32,7 @@ const TOUS = process.argv.includes('--tous');
   const max = m.maxConcurrentAuctions || 5, free = Math.max(0, max - selling.length);
   const busy = new Set(selling.flatMap(a => [a.card_id, a.user_card_id].filter(Boolean)));
   await pause();
-  const col = await get('/api/my-collection?sort=rarity&stats=0&page=0');
+  const col = await get('/api/my-collection?stats=0&page=0');
   if (!Array.isArray(col.collection)) throw new Error('réponse inattendue de /api/my-collection : session non reconnue par le site ?');
   const trade = new Set(col.pendingTradeCardIds || []);
 

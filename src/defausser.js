@@ -25,7 +25,7 @@ const RARE = ['L', 'UR', 'SR'];
   }
   // Cartes engagées dans un échange : le site refuse de les défausser.
   await pause();
-  const col = await (await call('wikimasters', BASE + '/api/my-collection?sort=rarity&stats=0&page=0', {headers: s.site})).json();
+  const col = await (await call('wikimasters', BASE + '/api/my-collection?stats=0&page=0', {headers: s.site})).json();
   if (!Array.isArray(col.collection)) throw new Error('réponse inattendue de /api/my-collection : session non reconnue par le site ?');
   const trade = new Set(col.pendingTradeCardIds || []);
 

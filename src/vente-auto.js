@@ -65,7 +65,7 @@ async function openPause(why) {
     if (page.length < 1000) break;
   }
   await pause();
-  const col = await get('/api/my-collection?sort=rarity&stats=0&page=0');
+  const col = await get('/api/my-collection?stats=0&page=0');
   if (!Array.isArray(col.collection)) throw new Error('réponse inattendue de /api/my-collection : session non reconnue par le site ?');
   const trade = new Set(col.pendingTradeCardIds || []);
   const pool = rows.filter(r => RARITIES.includes(r.cards?.rarity) && !busy.has(r.id) && !busy.has(r.card_id) && !trade.has(r.card_id));
