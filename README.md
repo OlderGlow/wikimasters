@@ -30,7 +30,7 @@ GitHub masque les secrets dans les journaux, et les scripts n'affichent aucun je
 
 | Workflow | Quand | Ce qu'il fait |
 |---|---|---|
-| **Classer** | tous les jours vers 7 h, ou à la demande | étiquette les cartes qui n'ont encore aucune étiquette, puis publie la répartition et la liste des « à classer » dans le résumé du job |
+| **Classer** | 4 fois par jour (vers 6 h, 12 h, 17 h et 22 h), ou à la demande | étiquette les cartes qui n'ont encore aucune étiquette, puis publie la répartition et la liste des « à classer » dans le résumé du job |
 | **Défausser** | à la demande seulement | en deux exécutions : un aperçu, puis la défausse confirmée |
 | **Vendre les doublons** | à la demande seulement | en deux exécutions : un aperçu, puis la mise aux enchères confirmée |
 | **Vente auto** | toutes les 3 h | remplit les places d'enchère libres avec des cartes C, PC ou R au hasard, pour 30 min |
@@ -77,6 +77,10 @@ Si le site demande une vérification humaine, le robot s'arrête et ouvre une is
 ```bash
 gh variable set VENTE_AUTO --body off --repo OlderGlow/wikimasters
 ```
+
+### Horaires
+
+GitHub lance les workflows planifiés « au mieux » : souvent avec une à deux heures de retard, et il en saute parfois. C'est pour ça que Classer a quatre créneaux par jour, et que Vente auto en a un toutes les 3 h. Tu peux toujours lancer un workflow à la main depuis l'onglet Actions.
 
 ## Discrétion
 

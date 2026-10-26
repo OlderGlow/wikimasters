@@ -2,8 +2,14 @@ name: Classer
 
 # Étiquette les nouvelles cartes sans étiquette, chaque jour et à la demande.
 on:
+  # GitHub retarde souvent ses horaires d'une à deux heures, et en saute parfois. Plusieurs créneaux par jour
+  # garantissent au moins un passage ; les suivants sont sans risque : seules les cartes encore sans étiquette
+  # sont traitées (quelques requêtes s'il n'y en a pas).
   schedule:
-    - cron: '17 6 * * *' # tous les jours vers 7 h 17 (heure de Paris en hiver)
+    - cron: '17 5 * * *'  # vers 6 h 17 (heure de Paris en hiver)
+    - cron: '47 10 * * *' # vers 11 h 47
+    - cron: '17 16 * * *' # vers 17 h 17
+    - cron: '47 20 * * *' # vers 21 h 47
   workflow_dispatch:
     inputs:
       apercu:
