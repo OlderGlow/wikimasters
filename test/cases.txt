@@ -230,3 +230,4 @@ Annomination | figure de style | langue
 Peppermint Patty | personnage des Peanuts | littérature
 (524613) 2003 QW113 | objet transneptunien | science, espace
 Impasse de la Glacière | impasse de Toulouse, en France | architecture
+Funkwhale | système web de streaming et de gestion de bibliothèque audio fédéré | informatique
