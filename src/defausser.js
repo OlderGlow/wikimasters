@@ -9,7 +9,7 @@ const {BASE, SB, sleep, pause, req, call, login, tradeIds, summary, esc} = requi
 const arg = name => { const i = process.argv.indexOf('--' + name); return i > 0 ? (process.argv[i + 1] || '').trim() : ''; };
 const NOMBRE = arg('nombre'), CODE = arg('code').toLowerCase();
 const TAG = arg('etiquette') || 'à classer';
-const RARE = ['L', 'UR', 'SR'];
+const RARE = ['L', 'UR', 'SR', 'R']; // les R se vendent souvent plus d'un wikibidou au marché
 
 (async () => {
   const s = await login();

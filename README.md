@@ -30,7 +30,7 @@ GitHub masque les secrets dans les journaux, et les scripts n'affichent aucun je
 
 | Workflow | Quand | Ce qu'il fait |
 |---|---|---|
-| **Classer** | 4 fois par jour (vers 6 h, 12 h, 17 h et 22 h), ou à la demande | étiquette les cartes qui n'ont encore aucune étiquette, puis publie la répartition et la liste des « à classer » dans le résumé du job |
+| **Classer** | 4 fois par jour (vers 6 h, 12 h, 17 h et 22 h), ou à la demande | étiquette les cartes qui n'ont encore aucune étiquette, puis publie la répartition et la liste des « à classer » dans le résumé du job. Quand les règles changent, il reprend aussi les cartes « à classer » et range celles qu'il sait désormais classer |
 | **Défausser** | à la demande seulement | en deux exécutions : un aperçu, puis la défausse confirmée |
 | **Vendre les doublons** | à la demande seulement | en deux exécutions : un aperçu, puis la mise aux enchères confirmée |
 | **Vente auto** | toutes les 3 h | remplit les places d'enchère libres avec des cartes C, PC ou R au hasard, pour 30 min |
@@ -47,7 +47,7 @@ La défausse est **définitive** : chaque carte rapporte 1 wikibidou et dispara�
 
 Le code est une empreinte de la liste. Si une carte a été ajoutée, retirée ou reclassée entre les deux exécutions, il ne correspond plus et rien n'est défaussé : il suffit de refaire un aperçu.
 
-Ne sont jamais défaussées : les cartes favorites, celles engagées dans un échange, les raretés L, UR et SR, les brillantes et les cartes en plusieurs exemplaires.
+Ne sont jamais défaussées : les cartes favorites, celles engagées dans un échange, les raretés L, UR, SR et R (qui se vendent souvent plus d'un wikibidou au marché), les brillantes et les cartes en plusieurs exemplaires.
 
 ### Vendre les doublons en deux temps
 
