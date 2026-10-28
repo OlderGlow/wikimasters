@@ -21,16 +21,27 @@ const PALETTE = ['#f472b6', '#c084fc', '#a78bfa', '#818cf8', '#60a5fa', '#38bdf8
     made.forEach(t => ids[t.name] = t.id);
   }
 
-  // Seules les cartes sans étiquette sont lues, directement dans la base : la route du site
-  // /api/my-collection?untagged=1 expire souvent (504) depuis que la collection dépasse 11 000 cartes.
-  // `user_card_tags!left` + `user_card_tags=is.null` = les cartes qui n'ont aucune ligne d'étiquette.
+  // Seules les cartes sans étiquette sont gardées. La route du site /api/my-collection?untagged=1 expire (504)
+  // depuis que la collection dépasse 11 000 cartes, et une jointure équivalente dans la base aussi (500).
+  // On lit donc deux listes simples, les identifiants des cartes et ceux des cartes étiquetées, puis on fait
+  // la différence ici ; seules les cartes sans étiquette sont ensuite lues en détail.
+  const pages = async (url, pick) => {
+    const out = [];
+    for (let off = 0; ; off += 1000) {
+      if (off) await sleep(800);
+      const page = await (await call('supabase', SB + url, {headers: {...s.sb, Range: off + '-' + (off + 999)}})).json();
+      out.push(...page.map(pick));
+      if (page.length < 1000) break;
+    }
+    return out;
+  };
+  const tagged = new Set(await pages('user_card_tags?select=user_card_id&tag_id=in.(' + Object.values(ids).join(',') + ')&order=user_card_id', r => r.user_card_id));
+  const untagged = (await pages('user_cards?select=id&user_id=eq.' + s.uid + '&order=id', r => r.id)).filter(id => !tagged.has(id));
   const cards = new Map();
-  for (let off = 0; ; off += 1000) {
-    if (off) await sleep(1500);
-    const page = await (await call('supabase', SB + 'user_cards?select=id,cards(wikipedia_title,category),user_card_tags!left(tag_id)&user_card_tags=is.null&user_id=eq.' + s.uid,
-      {headers: {...s.sb, Range: off + '-' + (off + 999)}})).json();
-    for (const uc of page) if (uc.cards) cards.set(uc.id, {t: uc.cards.wikipedia_title, d: uc.cards.category || ''});
-    if (page.length < 1000) break;
+  for (let i = 0; i < untagged.length; i += 150) {
+    if (i) await sleep(800);
+    const rows = await (await call('supabase', SB + 'user_cards?select=id,cards(wikipedia_title,category)&id=in.(' + untagged.slice(i, i + 150).join(',') + ')', {headers: s.sb})).json();
+    for (const uc of rows) if (uc.cards) cards.set(uc.id, {t: uc.cards.wikipedia_title, d: uc.cards.category || ''});
   }
 
   // Descriptions manquantes : première phrase Wikipédia, 20 titres par requête.
