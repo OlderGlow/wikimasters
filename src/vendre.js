@@ -4,7 +4,7 @@
 //   node src/vendre.js --nombre N --code C   → mise en vente, seulement si la liste (cartes et mises) est celle de l'aperçu.
 // Options : --duree MIN (10, 30, 60, 180, 360 ou 720 ; 720 par défaut), --tous (inclure les jamais vendues, mise 1).
 const crypto = require('crypto');
-const {BASE, SB, sleep, pause, req, call, login, summary, esc} = require('./wm');
+const {BASE, SB, sleep, pause, req, call, login, tradeIds, summary, esc} = require('./wm');
 
 const arg = name => { const i = process.argv.indexOf('--' + name); return i > 0 ? (process.argv[i + 1] || '').trim() : ''; };
 const NOMBRE = arg('nombre'), CODE = arg('code').toLowerCase();
@@ -32,9 +32,7 @@ const TOUS = process.argv.includes('--tous');
   const max = m.maxConcurrentAuctions || 5, free = Math.max(0, max - selling.length);
   const busy = new Set(selling.flatMap(a => [a.card_id, a.user_card_id].filter(Boolean)));
   await pause();
-  const col = await get('/api/my-collection?stats=0&page=0');
-  if (!Array.isArray(col.collection)) throw new Error('réponse inattendue de /api/my-collection : session non reconnue par le site ?');
-  const trade = new Set(col.pendingTradeCardIds || []);
+  const trade = await tradeIds(s.site);
 
   const groups = {};
   for (const r of rows) (groups[r.card_id] = groups[r.card_id] || []).push(r);

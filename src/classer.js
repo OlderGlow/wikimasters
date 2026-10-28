@@ -1,7 +1,7 @@
 // Classe les cartes WikiMasters sans étiquette et écrit leurs étiquettes.
 // Usage : node src/classer.js [--apercu]   (--apercu : classe sans rien écrire)
 const {classify} = require('./classify');
-const {BASE, SB, UA, sleep, pause, req, call, login, summary, esc} = require('./wm');
+const {SB, UA, sleep, pause, req, call, login, summary, esc} = require('./wm');
 
 const DRY = process.argv.includes('--apercu');
 const TAGS = ['personnalité', 'musique', 'film', 'série-tv', 'littérature', 'art', 'architecture', 'guerre', 'militaire', 'histoire', 'politique', 'religion', 'mythologie', 'philosophie', 'science', 'médecine', 'technologie', 'informatique', 'jeu-vidéo', 'sport', 'bateau', 'aviation', 'automobile', 'train', 'espace', 'géographie', 'ville', 'pays', 'animal', 'plante', 'nature', 'alimentation', 'mode', 'économie', 'entreprise', 'langue', 'éducation', 'crime', 'catastrophe', 'à classer'];
@@ -21,14 +21,16 @@ const PALETTE = ['#f472b6', '#c084fc', '#a78bfa', '#818cf8', '#60a5fa', '#38bdf8
     made.forEach(t => ids[t.name] = t.id);
   }
 
-  // Seules les cartes sans étiquette sont lues ; les pages commencent à 0.
+  // Seules les cartes sans étiquette sont lues, directement dans la base : la route du site
+  // /api/my-collection?untagged=1 expire souvent (504) depuis que la collection dépasse 11 000 cartes.
+  // `user_card_tags!left` + `user_card_tags=is.null` = les cartes qui n'ont aucune ligne d'étiquette.
   const cards = new Map();
-  for (let page = 0; page < 100; page++) {
-    await pause();
-    const d = await (await call('wikimasters', BASE + '/api/my-collection?untagged=1&stats=0&page=' + page, {headers: s.site})).json();
-    if (!Array.isArray(d.collection)) throw new Error('réponse inattendue de /api/my-collection : session non reconnue par le site ?');
-    for (const uc of d.collection) cards.set(uc.id, {t: uc.card.wikipedia_title, d: uc.card.category || ''});
-    if (d.collection.length < 50) break;
+  for (let off = 0; ; off += 1000) {
+    if (off) await sleep(1500);
+    const page = await (await call('supabase', SB + 'user_cards?select=id,cards(wikipedia_title,category),user_card_tags!left(tag_id)&user_card_tags=is.null&user_id=eq.' + s.uid,
+      {headers: {...s.sb, Range: off + '-' + (off + 999)}})).json();
+    for (const uc of page) if (uc.cards) cards.set(uc.id, {t: uc.cards.wikipedia_title, d: uc.cards.category || ''});
+    if (page.length < 1000) break;
   }
 
   // Descriptions manquantes : première phrase Wikipédia, 20 titres par requête.

@@ -6,7 +6,7 @@
 // plus rien tant qu'elle est ouverte : la fermer (après avoir fait la vérification sur le site) le relance.
 // Usage : node src/vente-auto.js [--apercu]   (--apercu : choisit les cartes sans rien mettre en vente)
 const fs = require('fs');
-const {BASE, SB, sleep, pause, req, call, login, summary, esc} = require('./wm');
+const {BASE, SB, sleep, pause, req, call, login, tradeIds, summary, esc} = require('./wm');
 
 const DRY = process.argv.includes('--apercu');
 const RARITIES = ['C', 'PC', 'R'];
@@ -65,9 +65,7 @@ async function openPause(why) {
     if (page.length < 1000) break;
   }
   await pause();
-  const col = await get('/api/my-collection?stats=0&page=0');
-  if (!Array.isArray(col.collection)) throw new Error('réponse inattendue de /api/my-collection : session non reconnue par le site ?');
-  const trade = new Set(col.pendingTradeCardIds || []);
+  const trade = await tradeIds(s.site);
   const pool = rows.filter(r => RARITIES.includes(r.cards?.rarity) && !busy.has(r.id) && !busy.has(r.card_id) && !trade.has(r.card_id));
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
 
@@ -93,7 +91,7 @@ async function openPause(why) {
   }
   save();
 
-  const listed = [];
+  const listed = [], refused = [];
   let stopped = null;
   if (!DRY) for (const x of picks) {
     await sleep(3000 + Math.random() * 1000);
@@ -102,8 +100,10 @@ async function openPause(why) {
     req.wikimasters++;
     const r = await res.json().catch(() => ({}));
     if (!res.ok) {
-      if (r.code === 'human_verification_required') { stopped = 'vérification humaine demandée par le site'; await openPause(stopped); }
-      else stopped = (r.error || 'HTTP ' + res.status) + ' pour ' + x.t;
+      if (r.code === 'human_verification_required') { stopped = 'vérification humaine demandée par le site'; await openPause(stopped); break; }
+      // Carte refusée (en échange, déjà réservée…) : on passe à la suivante. Erreur serveur : on s'arrête là.
+      if (res.status < 500) { refused.push(x.t + ' : ' + (r.error || 'HTTP ' + res.status)); continue; }
+      stopped = (r.error || 'HTTP ' + res.status) + ' pour ' + x.t;
       break;
     }
     listed.push(x);
@@ -118,6 +118,7 @@ async function openPause(why) {
     `${shown.length} carte(s) ${DRY ? 'choisie(s)' : 'mise(s) aux enchères pour ' + DUREE + ' min'} sur ${n} place(s) disponible(s). Enchères du jour : ${st.count}/${PAR_JOUR}.`,
     shown.length ? '\n| Carte | Rareté | Mise | Prix moyen | Ventes |\n|---|---|---|---|---|\n' + shown.map(x => `| ${esc(x.t)} | ${x.r} | ${x.base} | ${x.avg} | ${x.sales} |`).join('\n') : '',
     picks.length < n ? `\nSeulement ${picks.length} carte(s) assez vendue(s) trouvée(s) parmi ${lookups} prix consultés : le reste attendra le prochain passage.` : '',
+    refused.length ? `\nRefusées par le site : ${refused.map(esc).join(' ; ')}.` : '',
     stopped ? `\n**Arrêt :** ${stopped}.` : '',
     '',
     `Requêtes : WikiMasters ${req.wikimasters}, Supabase ${req.supabase}.`,

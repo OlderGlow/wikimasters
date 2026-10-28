@@ -4,7 +4,7 @@
 //   node src/defausser.js --nombre N --code C   → défausse, seulement si la liste est exactement celle de l'aperçu.
 // Le code est une empreinte de la liste : si une carte a été ajoutée, retirée ou reclassée entre-temps, il change et rien n'est défaussé.
 const crypto = require('crypto');
-const {BASE, SB, sleep, pause, req, call, login, summary, esc} = require('./wm');
+const {BASE, SB, sleep, pause, req, call, login, tradeIds, summary, esc} = require('./wm');
 
 const arg = name => { const i = process.argv.indexOf('--' + name); return i > 0 ? (process.argv[i + 1] || '').trim() : ''; };
 const NOMBRE = arg('nombre'), CODE = arg('code').toLowerCase();
@@ -25,9 +25,7 @@ const RARE = ['L', 'UR', 'SR'];
   }
   // Cartes engagées dans un échange : le site refuse de les défausser.
   await pause();
-  const col = await (await call('wikimasters', BASE + '/api/my-collection?stats=0&page=0', {headers: s.site})).json();
-  if (!Array.isArray(col.collection)) throw new Error('réponse inattendue de /api/my-collection : session non reconnue par le site ?');
-  const trade = new Set(col.pendingTradeCardIds || []);
+  const trade = await tradeIds(s.site);
 
   const cards = rows.map(x => x.user_cards && {id: x.user_card_id, card_id: x.user_cards.card_id, t: x.user_cards.cards?.wikipedia_title || '?',
     r: x.user_cards.cards?.rarity, d: x.user_cards.cards?.category || '', starred: x.user_cards.starred, count: x.user_cards.count || 1, shiny: x.user_cards.is_shiny}).filter(Boolean);

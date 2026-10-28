@@ -172,6 +172,20 @@ async function login() {
   };
 }
 
+// Cartes engagées dans un échange (le site refuse de les vendre ou de les défausser). La seule source est
+// /api/my-collection, qui expire parfois (504) : on continue alors sans, puisque le site les refusera de lui-même.
+async function tradeIds(site) {
+  try {
+    const col = await (await call('wikimasters', BASE + '/api/my-collection?stats=0&page=0', {headers: site})).json();
+    if (!Array.isArray(col.collection)) throw new Error('réponse inattendue de /api/my-collection : session non reconnue par le site ?');
+    return new Set(col.pendingTradeCardIds || []);
+  } catch (e) {
+    if (/session non reconnue/.test(e.message)) throw e;
+    console.error('Attention : échanges en cours non vérifiés (' + e.message + ').');
+    return new Set();
+  }
+}
+
 // Résumé affiché sur la page du job GitHub (ou dans le terminal en local).
 function summary(md) {
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md + '\n');
@@ -180,4 +194,4 @@ function summary(md) {
 
 const esc = s => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ');
 
-module.exports = {BASE, SB, UA, sleep, pause, req, call, anonKey, login, loadToken, saveToken, summary, esc};
+module.exports = {BASE, SB, UA, sleep, pause, req, call, anonKey, login, loadToken, saveToken, tradeIds, summary, esc};
