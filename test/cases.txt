@@ -182,7 +182,7 @@ Daniel Larimer | informaticien américain | personnalité, informatique
 Laosuchus | genre éteint de chroniosuchiens | animal
 Sentier Josémont | sentier de randonnée à La Réunion | géographie
 Tour d'Algérie 2001 | Le Tour d'Algérie 2001 se déroule du 29 avril au 1er mai | sport
-Bataille de Gjorm | 1943 | guerre
+Bataille de Gjorm | 1943 | guerre, histoire
 RAS-1 Getta | hydravion roumain de reconnaissance de l'entre-deux-guerres | aviation
 Bernard Moullier | sauteur à ski français | personnalité, sport
 Melanie Barbezat | Melanie Barbezat, née le 10 août 1991, est une curleuse suisse | personnalité, sport
@@ -231,3 +231,7 @@ Peppermint Patty | personnage des Peanuts | littérature
 (524613) 2003 QW113 | objet transneptunien | science, espace
 Impasse de la Glacière | impasse de Toulouse, en France | architecture
 Funkwhale | système web de streaming et de gestion de bibliothèque audio fédéré | informatique
+Paracorallium | genre de coraux | animal
+1659 | année | histoire
+Saison 2015-2016 du Toulouse Football Club | saison du Toulouse FC | sport
+Castel Huelen | motte castrale à Ploumagoar, France | architecture, histoire
