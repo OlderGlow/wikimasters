@@ -1,15 +1,13 @@
 // Met aux enchères les exemplaires en trop des cartes possédées plusieurs fois, au prix moyen de leurs ventes.
-// Deux temps, jamais en une seule exécution :
-//   node src/vendre.js                       → aperçu : liste, mises, nombre et code de confirmation, n'écrit rien ;
-//   node src/vendre.js --nombre N --code C   → mise en vente, seulement si la liste (cartes et mises) est celle de l'aperçu.
+//   node src/vendre.js            → mise en vente directe, dans la limite des places d'enchère libres ;
+//   node src/vendre.js --apercu   → liste et mises seulement, n'écrit rien.
 // Options : --duree MIN (10, 30, 60, 180, 360 ou 720 ; 720 par défaut), --tous (inclure les jamais vendues, mise 1).
-const crypto = require('crypto');
 const {BASE, SB, sleep, pause, req, call, login, tradeIds, summary, esc} = require('./wm');
 
 const arg = name => { const i = process.argv.indexOf('--' + name); return i > 0 ? (process.argv[i + 1] || '').trim() : ''; };
-const NOMBRE = arg('nombre'), CODE = arg('code').toLowerCase();
 const DUREE = [10, 30, 60, 180, 360, 720].includes(Number(arg('duree'))) ? Number(arg('duree')) : 720;
 const TOUS = process.argv.includes('--tous');
+const APERCU = process.argv.includes('--apercu');
 
 (async () => {
   const s = await login();
@@ -64,36 +62,11 @@ const TOUS = process.argv.includes('--tous');
   }
   all.sort((a, b) => b.base - a.base || String(a.id).localeCompare(String(b.id)));
   const items = all.slice(0, free), overflow = all.slice(free);
-  // Le code couvre les cartes, leurs mises et la durée : si l'un change, la confirmation ne vaut plus.
-  const code = crypto.createHash('sha256').update(items.map(x => x.id + ':' + x.base).join(',') + '|' + DUREE).digest('hex').slice(0, 8);
-  const total = items.reduce((t, x) => t + x.base, 0);
   const h = DUREE >= 60 ? DUREE / 60 + ' h' : DUREE + ' min';
-
-  if (!NOMBRE && !CODE) {
-    summary([
-      '## Aperçu de la vente des doublons',
-      '',
-      items.length ? `**${items.length} cartes** à mettre aux enchères pendant ${h}, pour **${total} WikiCoins** de mises de départ (minimum gagné si chaque carte trouve preneur, sans garantie). Places d'enchère libres : ${free}/${max}.` : `Aucun doublon à mettre en vente. Places d'enchère libres : ${free}/${max}.`,
-      '',
-      items.length ? `Pour confirmer, relance le workflow **Vendre les doublons** avec **nombre = \`${items.length}\`**, **code = \`${code}\`** et la même durée${TOUS ? ' (et la case « tous » cochée)' : ''}.` : '',
-      '',
-      items.length ? '| Carte | Rareté | Mise | Prix moyen | Ventes | Dernière |\n|---|---|---|---|---|---|\n' + items.map(x => `| ${esc(x.t)} | ${x.r} | ${x.base} | ${x.avg ?? '—'} | ${x.sales} | ${x.latest ?? '—'} |`).join('\n') : '',
-      '',
-      overflow.length ? `### Hors places libres (${overflow.length})\n\n` + overflow.map(x => `- ${esc(x.t)} (mise ${x.base})`).join('\n') : '',
-      unsold.length ? `\n### Jamais vendues (${unsold.length}, ajoutées avec « tous »)\n\n` + unsold.map(x => `- ${esc(x.t)} (${x.r})`).join('\n') : '',
-      kept.length ? `\n### Gardées (${kept.length})\n\n` + kept.map(t => '- ' + esc(t)).join('\n') : '',
-      '',
-      `Requêtes : WikiMasters ${req.wikimasters}, Supabase ${req.supabase}.`,
-    ].join('\n'));
-    return;
-  }
-
-  if (Number(NOMBRE) !== items.length || CODE !== code)
-    throw new Error(`confirmation refusée : nombre ${NOMBRE || '—'} / code ${CODE || '—'}, alors que la liste actuelle compte ${items.length} cartes (code ${code}). Rien n'a été mis en vente : relance un aperçu.`);
 
   const listed = [];
   let stopped = null;
-  for (const x of items) {
+  if (!APERCU) for (const x of items) {
     await sleep(3000 + Math.random() * 1000);
     const res = await fetch(BASE + '/api/marketplace', {method: 'POST', headers: s.site,
       body: JSON.stringify({card_id: x.id, base_amount: x.base, duration_minutes: DUREE})});
@@ -102,19 +75,27 @@ const TOUS = process.argv.includes('--tous');
     if (!res.ok) {
       // Le site demande parfois une vérification humaine : seul l'utilisateur peut la faire, sur le site.
       stopped = r.code === 'human_verification_required'
-        ? 'le site demande une vérification humaine : mets toi-même une carte aux enchères sur le site, puis relance un aperçu'
+        ? 'le site demande une vérification humaine : mets toi-même une carte aux enchères sur le site, puis relance'
         : (r.error || 'HTTP ' + res.status) + ' pour ' + x.t;
       break;
     }
     listed.push(x);
   }
+
+  const shown = APERCU ? items : listed;
   summary([
-    '## Vente des doublons',
+    APERCU ? '## Aperçu de la vente des doublons' : '## Vente des doublons',
     '',
-    `**${listed.length}/${items.length} cartes** mises aux enchères pendant ${h}, pour ${listed.reduce((t, x) => t + x.base, 0)} WikiCoins de mises de départ.`,
+    !items.length ? (overflow.length ? `Aucune place d'enchère libre (${free}/${max}) : relance quand tes enchères en cours seront terminées.` : `Aucun doublon à mettre en vente. Places d'enchère libres : ${free}/${max}.`)
+      : APERCU ? `**${items.length} cartes** seraient mises aux enchères pendant ${h}, pour **${items.reduce((t, x) => t + x.base, 0)} WikiCoins** de mises de départ. Rien n'a été mis en vente. Places d'enchère libres : ${free}/${max}.`
+      : `**${listed.length}/${items.length} cartes** mises aux enchères pendant ${h}, pour **${listed.reduce((t, x) => t + x.base, 0)} WikiCoins** de mises de départ (minimum gagné si chaque carte trouve preneur, sans garantie).`,
     '',
-    listed.map(x => `- ${esc(x.t)} — mise ${x.base}`).join('\n'),
+    shown.length ? '| Carte | Rareté | Mise | Prix moyen | Ventes | Dernière |\n|---|---|---|---|---|---|\n' + shown.map(x => `| ${esc(x.t)} | ${x.r} | ${x.base} | ${x.avg ?? '—'} | ${x.sales} | ${x.latest ?? '—'} |`).join('\n') : '',
     stopped ? `\n**Arrêt :** ${stopped}.` : '',
+    '',
+    overflow.length ? `### Hors places libres (${overflow.length}, pour la prochaine fois)\n\n` + overflow.map(x => `- ${esc(x.t)} (mise ${x.base})`).join('\n') : '',
+    unsold.length ? `\n### Jamais vendues (${unsold.length}, ajoutées avec « tous »)\n\n` + unsold.map(x => `- ${esc(x.t)} (${x.r})`).join('\n') : '',
+    kept.length ? `\n### Gardées (${kept.length})\n\n` + kept.map(t => '- ' + esc(t)).join('\n') : '',
     '',
     `Requêtes : WikiMasters ${req.wikimasters}, Supabase ${req.supabase}.`,
   ].join('\n'));

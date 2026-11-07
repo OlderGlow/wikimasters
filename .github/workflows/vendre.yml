@@ -1,19 +1,14 @@
 name: Vendre les doublons
 
-# Met aux enchères les exemplaires en trop, au prix moyen de leurs ventes passées, en deux exécutions :
-#   1. lancer sans nombre ni code → aperçu dans le résumé du job, avec le nombre et le code ;
-#   2. relancer avec ce nombre, ce code et les mêmes options → mise en vente, seulement si la liste n'a pas changé.
+# Met aux enchères les exemplaires en trop, au prix moyen de leurs ventes passées, dans la limite des places libres.
+# La liste des cartes mises en vente s'affiche dans le résumé du job.
 on:
   workflow_dispatch:
     inputs:
-      nombre:
-        description: "Nombre de cartes de l'aperçu (vide = aperçu)"
-        required: false
-        default: ''
-      code:
-        description: "Code de confirmation de l'aperçu (vide = aperçu)"
-        required: false
-        default: ''
+      apercu:
+        description: "Aperçu seulement (ne rien mettre en vente)"
+        type: boolean
+        default: false
       duree:
         description: "Durée des enchères (minutes)"
         type: choice
@@ -47,16 +42,15 @@ jobs:
           path: .session
           key: wm-session-${{ github.run_id }}
           restore-keys: wm-session-
-      - name: ${{ inputs.nombre == '' && 'Aperçu' || 'Mise en vente' }}
+      - name: ${{ inputs.apercu && 'Aperçu' || 'Mise en vente' }}
         env:
           WM_REFRESH_TOKEN: ${{ secrets.WM_REFRESH_TOKEN }}
           WM_KEY: ${{ secrets.WM_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
-          NOMBRE: ${{ inputs.nombre }}
-          CODE: ${{ inputs.code }}
+          APERCU: ${{ inputs.apercu && '--apercu' || '' }}
           DUREE: ${{ inputs.duree }}
           TOUS: ${{ inputs.tous && '--tous' || '' }}
-        run: node src/vendre.js --nombre "$NOMBRE" --code "$CODE" --duree "$DUREE" $TOUS
+        run: node src/vendre.js --duree "$DUREE" $TOUS $APERCU
       # Le jeton vient d'être remplacé par Supabase : on garde le nouveau, même si la suite a échoué.
       - if: always() && hashFiles('.session/jeton.enc') != ''
         uses: actions/cache/save@v4
