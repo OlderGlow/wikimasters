@@ -32,7 +32,7 @@ GitHub masque les secrets dans les journaux, et les scripts n'affichent aucun je
 |---|---|---|
 | **Classer** | 4 fois par jour (vers 6 h, 12 h, 17 h et 22 h), ou à la demande | étiquette les cartes qui n'ont encore aucune étiquette, puis publie la répartition et la liste des « à classer » dans le résumé du job. Quand les règles changent, il reprend aussi les cartes « à classer » et range celles qu'il sait désormais classer |
 | **Défausser** | à la demande seulement | en deux exécutions : un aperçu, puis la défausse confirmée |
-| **Vendre les doublons** | à la demande seulement | en deux exécutions : un aperçu, puis la mise aux enchères confirmée |
+| **Vendre les doublons** | à la demande seulement | met les doublons aux enchères, dans la limite des places libres |
 | **Vente auto** | toutes les 3 h | remplit les places d'enchère libres avec des cartes C, PC ou R au hasard, pour 30 min |
 | **Tests** | à chaque modification des règles | vérifie `src/classify.js` sur `test/cases.txt` |
 
@@ -49,16 +49,15 @@ Le code est une empreinte de la liste. Si une carte a été ajoutée, retirée o
 
 Ne sont jamais défaussées : les cartes favorites, celles engagées dans un échange, les raretés L, UR, SR et R (qui se vendent souvent plus d'un wikibidou au marché), les brillantes et les cartes en plusieurs exemplaires.
 
-### Vendre les doublons en deux temps
+### Vendre les doublons
 
 Chaque exemplaire en trop est mis aux enchères, avec pour mise de départ le **prix moyen** de ses ventes passées (même rareté). Tu gardes toujours un exemplaire normal de chaque carte. Les brillantes, les favoris, les cartes engagées dans un échange et celles déjà en vente ne sont jamais mis aux enchères.
 
-1. Lance **Vendre les doublons** sans nombre ni code, en choisissant la durée des enchères (12 h par défaut). Si tu veux aussi les doublons jamais vendus, coche « tous » : leur mise de départ sera de 1. Le résumé liste les cartes avec leur mise, et donne un **nombre** et un **code**.
-2. Si la liste te convient, relance le workflow avec ce nombre, ce code et **les mêmes options**.
+Lance **Vendre les doublons** en choisissant la durée des enchères (12 h par défaut) : les cartes sont mises en vente tout de suite, et le résumé les liste avec leur mise. Si tu veux aussi les doublons jamais vendus, coche « tous » : leur mise de départ sera de 1. Pour voir la liste sans rien mettre en vente, coche « Aperçu seulement ».
 
-Le code couvre les cartes, leurs mises et la durée. Si l'un change entre les deux exécutions, rien n'est mis en vente. La liste est limitée aux places d'enchère libres : 10 pour un compte Pro, 5 sinon.
+Une exécution remplit les places d'enchère libres (10 pour un compte Pro, 5 sinon), en commençant par les mises les plus hautes. Les doublons restants sont listés dans le résumé : relance le workflow quand des places se libèrent.
 
-Si le site demande une vérification humaine, le workflow s'arrête : mets toi-même une carte aux enchères sur le site, puis refais un aperçu.
+Si le site demande une vérification humaine, le workflow s'arrête : mets toi-même une carte aux enchères sur le site, puis relance.
 
 ### Vente auto
 
