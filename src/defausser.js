@@ -1,13 +1,10 @@
 // Défausse les cartes WikiMasters étiquetées « à classer » (+1 wikibidou par carte, la carte est perdue).
-// Deux temps, jamais en une seule exécution :
-//   node src/defausser.js                       → aperçu : liste, nombre et code de confirmation, n'écrit rien ;
-//   node src/defausser.js --nombre N --code C   → défausse, seulement si la liste est exactement celle de l'aperçu.
-// Le code est une empreinte de la liste : si une carte a été ajoutée, retirée ou reclassée entre-temps, il change et rien n'est défaussé.
-const crypto = require('crypto');
+//   node src/defausser.js            → défausse directe ;
+//   node src/defausser.js --apercu   → liste seulement, n'écrit rien.
 const {BASE, SB, sleep, pause, req, call, login, tradeIds, summary, esc} = require('./wm');
 
 const arg = name => { const i = process.argv.indexOf('--' + name); return i > 0 ? (process.argv[i + 1] || '').trim() : ''; };
-const NOMBRE = arg('nombre'), CODE = arg('code').toLowerCase();
+const APERCU = process.argv.includes('--apercu');
 const TAG = arg('etiquette') || 'à classer';
 const RARE = ['L', 'UR', 'SR', 'R']; // les R se vendent souvent plus d'un wikibidou au marché
 
@@ -34,28 +31,25 @@ const RARE = ['L', 'UR', 'SR', 'R']; // les R se vendent souvent plus d'un wikib
     : c.shiny ? 'brillante' : c.count > 1 ? c.count + ' exemplaires' : null;
   const kept = cards.filter(why);
   const ok = cards.filter(c => !why(c)).sort((a, b) => String(a.id).localeCompare(String(b.id)));
-  const code = crypto.createHash('sha256').update(ok.map(c => c.id).join(',')).digest('hex').slice(0, 8);
   const byRarity = ok.reduce((m, c) => (m[c.r] = (m[c.r] || 0) + 1, m), {});
 
-  if (!NOMBRE && !CODE) {
+  const table = ok.length ? '| Carte | Rareté | Description |\n|---|---|---|\n' + ok.map(c => `| ${esc(c.t)} | ${c.r} | ${esc(c.d.slice(0, 70))} |`).join('\n') : '';
+  const protectedList = kept.length ? `### Protégées (${kept.length})\n\n` + kept.map(c => `- ${esc(c.t)} (${why(c)})`).join('\n') : '';
+
+  if (APERCU) {
     summary([
       `## Aperçu de la défausse « ${TAG} »`,
       '',
-      ok.length ? `**${ok.length} cartes** à défausser (${Object.entries(byRarity).map(([r, n]) => n + ' ' + r).join(', ')}), soit **${ok.length} wikibidous**. La défausse est **définitive**.` : 'Aucune carte à défausser.',
+      ok.length ? `**${ok.length} cartes** seraient défaussées (${Object.entries(byRarity).map(([r, n]) => n + ' ' + r).join(', ')}), soit **${ok.length} wikibidous**. Rien n'a été défaussé.` : 'Aucune carte à défausser.',
       '',
-      ok.length ? `Pour confirmer, relance le workflow **Défausser** avec **nombre = \`${ok.length}\`** et **code = \`${code}\`**.` : '',
+      table,
       '',
-      ok.length ? '| Carte | Rareté | Description |\n|---|---|---|\n' + ok.map(c => `| ${esc(c.t)} | ${c.r} | ${esc(c.d.slice(0, 70))} |`).join('\n') : '',
-      '',
-      kept.length ? `### Protégées (${kept.length})\n\n` + kept.map(c => `- ${esc(c.t)} (${why(c)})`).join('\n') : '',
+      protectedList,
       '',
       `Requêtes : WikiMasters ${req.wikimasters}, Supabase ${req.supabase}.`,
     ].join('\n'));
     return;
   }
-
-  if (Number(NOMBRE) !== ok.length || CODE !== code)
-    throw new Error(`confirmation refusée : nombre ${NOMBRE || '—'} / code ${CODE || '—'}, alors que la liste actuelle compte ${ok.length} cartes (code ${code}). Rien n'a été défaussé : relance un aperçu.`);
 
   let discarded = 0; const failed = [];
   for (let i = 0; i < ok.length; i += 50) {
@@ -68,8 +62,12 @@ const RARE = ['L', 'UR', 'SR', 'R']; // les R se vendent souvent plus d'un wikib
   summary([
     `## Défausse « ${TAG} »`,
     '',
-    `**${discarded} cartes défaussées**, soit ${discarded} wikibidous.${failed.length ? ` Échecs : ${failed.length}.` : ''}`,
+    ok.length ? `**${discarded} cartes défaussées**, soit ${discarded} wikibidous.${failed.length ? ` Échecs : ${failed.length}.` : ''}` : 'Aucune carte à défausser.',
     failed.length ? '\n```\n' + JSON.stringify(failed, null, 1).slice(0, 3000) + '\n```' : '',
+    '',
+    table,
+    '',
+    protectedList,
     '',
     `Requêtes : WikiMasters ${req.wikimasters}, Supabase ${req.supabase}.`,
   ].join('\n'));

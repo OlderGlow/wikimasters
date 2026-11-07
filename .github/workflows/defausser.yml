@@ -1,19 +1,14 @@
 name: Défausser
 
-# Défausse les cartes « à classer » (+1 wikibidou chacune, définitif), en deux exécutions :
-#   1. lancer sans rien remplir → aperçu dans le résumé du job, avec le nombre et le code ;
-#   2. relancer avec ce nombre et ce code → défausse, seulement si la liste n'a pas changé.
+# Défausse les cartes « à classer » (+1 wikibidou chacune, définitif) dès le lancement.
+# La liste des cartes défaussées s'affiche dans le résumé du job.
 on:
   workflow_dispatch:
     inputs:
-      nombre:
-        description: "Nombre de cartes de l'aperçu (vide = aperçu)"
-        required: false
-        default: ''
-      code:
-        description: "Code de confirmation de l'aperçu (vide = aperçu)"
-        required: false
-        default: ''
+      apercu:
+        description: "Aperçu seulement (ne rien défausser)"
+        type: boolean
+        default: false
       etiquette:
         description: "Étiquette à défausser"
         required: false
@@ -42,15 +37,14 @@ jobs:
           path: .session
           key: wm-session-${{ github.run_id }}
           restore-keys: wm-session-
-      - name: ${{ inputs.nombre == '' && 'Aperçu' || 'Défausse' }}
+      - name: ${{ inputs.apercu && 'Aperçu' || 'Défausse' }}
         env:
           WM_REFRESH_TOKEN: ${{ secrets.WM_REFRESH_TOKEN }}
           WM_KEY: ${{ secrets.WM_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
-          NOMBRE: ${{ inputs.nombre }}
-          CODE: ${{ inputs.code }}
+          APERCU: ${{ inputs.apercu && '--apercu' || '' }}
           ETIQUETTE: ${{ inputs.etiquette }}
-        run: node src/defausser.js --nombre "$NOMBRE" --code "$CODE" --etiquette "$ETIQUETTE"
+        run: node src/defausser.js --etiquette "$ETIQUETTE" $APERCU
       # Le jeton vient d'être remplacé par Supabase : on garde le nouveau, même si la suite a échoué.
       - if: always() && hashFiles('.session/jeton.enc') != ''
         uses: actions/cache/save@v4

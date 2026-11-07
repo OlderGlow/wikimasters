@@ -31,21 +31,18 @@ GitHub masque les secrets dans les journaux, et les scripts n'affichent aucun je
 | Workflow | Quand | Ce qu'il fait |
 |---|---|---|
 | **Classer** | 4 fois par jour (vers 6 h, 12 h, 17 h et 22 h), ou à la demande | étiquette les cartes qui n'ont encore aucune étiquette, puis publie la répartition et la liste des « à classer » dans le résumé du job. Quand les règles changent, il reprend aussi les cartes « à classer » et range celles qu'il sait désormais classer |
-| **Défausser** | à la demande seulement | en deux exécutions : un aperçu, puis la défausse confirmée |
+| **Défausser** | à la demande seulement | défausse les cartes « à classer » dès le lancement |
 | **Vendre les doublons** | une fois par jour (vers 14 h 53), ou à la demande | met les doublons aux enchères, dans la limite des places libres |
 | **Vente auto** | toutes les 3 h | remplit les places d'enchère libres avec des cartes C, PC ou R au hasard, pour 30 min |
 | **Tests** | à chaque modification des règles | vérifie `src/classify.js` sur `test/cases.txt` |
 
 Les résultats s'affichent dans le **résumé** de chaque exécution, dans l'onglet Actions.
 
-### Défausser en deux temps
+### Défausser
 
 La défausse est **définitive** : chaque carte rapporte 1 wikibidou et disparaît de la collection.
 
-1. Lance **Défausser** sans rien remplir. Le résumé liste les cartes concernées et les cartes protégées. Il donne aussi un **nombre** et un **code**.
-2. Si la liste te convient, relance **Défausser** avec ce nombre et ce code.
-
-Le code est une empreinte de la liste. Si une carte a été ajoutée, retirée ou reclassée entre les deux exécutions, il ne correspond plus et rien n'est défaussé : il suffit de refaire un aperçu.
+Lance **Défausser** : les cartes « à classer » sont défaussées tout de suite, et le résumé les liste avec les cartes protégées. Pour voir la liste sans rien défausser, coche « Aperçu seulement ». Mets en favori sur le site les cartes « à classer » que tu veux garder.
 
 Ne sont jamais défaussées : les cartes favorites, celles engagées dans un échange, les raretés L, UR, SR et R (qui se vendent souvent plus d'un wikibidou au marché), les brillantes et les cartes en plusieurs exemplaires.
 
