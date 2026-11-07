@@ -1,6 +1,6 @@
 // Outils communs : session WikiMasters reprise d'un jeton de renouvellement (secrets GitHub),
 // requêtes avec pauses et reprises, résumé Markdown du job.
-// Rien ici n'affiche de jeton ou de cookie ; le seul jeton gardé l'est chiffré, dans le cache GitHub Actions.
+// Rien ici n'affiche de jeton ou de cookie ; le seul jeton gardé l'est chiffré (branche « etat » et cache GitHub Actions).
 const fs = require('fs');
 const crypto = require('crypto');
 
@@ -33,7 +33,17 @@ async function call(kind, url, opts = {}) {
   throw new Error(kind + ' : serveur indisponible après ' + (waits.length + 1) + ' essais (' + last + ', ' + url.replace(/\?.*/, '').replace(/^https:\/\/[^/]+/, '') + ')');
 }
 
-// Clé publique (anon) de Supabase, présente dans le code JavaScript du site.
+// Clé publique (anon) de Supabase, présente dans le code JavaScript du site. Elle change rarement : on la garde
+// dans .session et on ne la relit dans le code du site que si Supabase la refuse.
+const KEY = '.session/cle.json';
+async function siteKey(refresh = false) {
+  if (!refresh) try { const k = JSON.parse(fs.readFileSync(KEY, 'utf8')).key; if (k) return k; } catch {}
+  const k = await anonKey();
+  fs.mkdirSync('.session', {recursive: true});
+  fs.writeFileSync(KEY, JSON.stringify({key: k, at: Date.now()}));
+  return k;
+}
+
 async function anonKey() {
   const isAnon = j => { try { return JSON.parse(Buffer.from(j.split('.')[1], 'base64url')).role === 'anon'; } catch { return false; } };
   const seen = new Set();
@@ -43,7 +53,8 @@ async function anonKey() {
     for (const [path] of html.matchAll(/\/_next\/static\/chunks\/[^"'\s\\]+?\.js/g)) {
       if (seen.has(path)) continue;
       seen.add(path);
-      const js = await (await fetch(BASE + path, {headers: {'User-Agent': UA}})).text();
+      await sleep(500);
+      const js = await (await call('wikimasters', BASE + path, {headers: {'User-Agent': UA}})).text();
       const k = [...js.matchAll(/eyJ[\w-]{10,}\.eyJ[\w-]{10,}\.[\w-]{10,}/g)].map(x => x[0]).find(isAnon);
       if (k) return k;
     }
@@ -137,7 +148,7 @@ async function expiredIssue(open, why) {
 async function login() {
   const seed = (process.env.WM_REFRESH_TOKEN || '').trim(), pass = process.env.WM_KEY || '';
   if (!seed || !pass) throw new Error('secrets WM_REFRESH_TOKEN et WM_KEY absents : voir « Mise en place » dans le README');
-  const key = await anonKey();
+  let key = await siteKey();
   const token = await loadToken(seed, pass);
   // Erreurs serveur passagères (5xx, réseau) : on réessaie avec le même jeton. Supabase accepte de le revoir
   // quelques secondes après l'avoir remplacé, d'où un premier essai rapide.
@@ -150,6 +161,8 @@ async function login() {
       req.supabase++;
       sess = await res.json().catch(() => ({}));
     } catch (e) { res = null; }
+    // Clé refusée (« Invalid API key ») : le site en a changé, on la relit dans son code. Le jeton n'a pas servi.
+    if (res && res.status === 401 && /api key/i.test(sess.message || sess.msg || '') && wait === 0) { key = await siteKey(true); continue; }
     if (res && res.status < 500) break;
   }
   if (!res || res.status >= 500) throw new Error('Supabase indisponible (' + (res ? 'HTTP ' + res.status : 'réseau') + ') : réessayer plus tard, la session n\'est pas en cause');
@@ -186,6 +199,33 @@ async function tradeIds(site) {
   }
 }
 
+// Prix du marché (résumé des ventes par rareté), partagés par Vendre les doublons et Vente auto, gardés 7 jours.
+// Ils vivent dans .session, que le workflow garde d'une exécution à l'autre (cache GitHub Actions).
+const PRICES = '.session/prix.json';
+function priceCache() {
+  const fresh = Date.now() - 7 * 86400000;
+  let all = {};
+  // Ancien emplacement d'abord (état de Vente auto), puis le fichier commun, plus récent.
+  try { Object.assign(all, JSON.parse(fs.readFileSync('.session/vente-auto.json', 'utf8')).prices || {}); } catch {}
+  try { Object.assign(all, JSON.parse(fs.readFileSync(PRICES, 'utf8'))); } catch {}
+  for (const [k, v] of Object.entries(all)) if (!v || v.at < fresh) delete all[k];
+  return {
+    known: id => !!all[id],
+    // Certaines cartes n'ont pas de page marché (« Carte introuvable », 404) : on les compte comme jamais vendues.
+    async summary(site, id) {
+      if (!all[id]) {
+        await pause();
+        let sum = {};
+        try { sum = (await (await call('wikimasters', BASE + '/api/marketplace/cards/' + id + '/sales?scope=summary', {headers: site})).json()).summary || {}; }
+        catch (e) { if (!/HTTP 404/.test(e.message)) throw e; }
+        all[id] = {at: Date.now(), sum};
+      }
+      return all[id].sum;
+    },
+    save() { fs.mkdirSync('.session', {recursive: true}); fs.writeFileSync(PRICES, JSON.stringify(all)); },
+  };
+}
+
 // Résumé affiché sur la page du job GitHub (ou dans le terminal en local).
 function summary(md) {
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md + '\n');
@@ -194,4 +234,4 @@ function summary(md) {
 
 const esc = s => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ');
 
-module.exports = {BASE, SB, UA, sleep, pause, req, call, anonKey, login, loadToken, saveToken, tradeIds, summary, esc};
+module.exports = {BASE, SB, UA, sleep, pause, req, call, anonKey, login, loadToken, saveToken, tradeIds, priceCache, summary, esc};

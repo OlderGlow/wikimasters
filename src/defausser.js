@@ -5,7 +5,7 @@ const {BASE, SB, sleep, pause, req, call, login, tradeIds, summary, esc} = requi
 
 const arg = name => { const i = process.argv.indexOf('--' + name); return i > 0 ? (process.argv[i + 1] || '').trim() : ''; };
 const APERCU = process.argv.includes('--apercu');
-const TAG = arg('etiquette') || 'à classer';
+const TAG = arg('etiquette') || process.env.ETIQUETTE || 'à classer';
 const RARE = ['L', 'UR', 'SR', 'R']; // les R se vendent souvent plus d'un wikibidou au marché
 
 (async () => {
@@ -14,7 +14,7 @@ const RARE = ['L', 'UR', 'SR', 'R']; // les R se vendent souvent plus d'un wikib
   if (!tag) throw new Error('étiquette « ' + TAG + ' » introuvable');
   const rows = [];
   for (let off = 0; ; off += 1000) {
-    await sleep(2000);
+    if (off) await sleep(800);
     const page = await (await call('supabase', SB + 'user_card_tags?select=user_card_id,user_cards(id,starred,count,is_shiny,card_id,cards(wikipedia_title,rarity,category))&tag_id=eq.' + tag.id,
       {headers: {...s.sb, Range: off + '-' + (off + 999)}})).json();
     rows.push(...page);

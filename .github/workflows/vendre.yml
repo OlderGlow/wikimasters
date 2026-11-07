@@ -39,27 +39,11 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: ./.github/actions/wm
         with:
-          node-version: 22
-      # Jeton de session de l'exécution précédente (chiffré avec WM_KEY).
-      - uses: actions/cache/restore@v4
-        with:
-          path: .session
-          key: wm-session-${{ github.run_id }}
-          restore-keys: wm-session-
-      - name: ${{ inputs.apercu && 'Aperçu' || 'Mise en vente' }}
-        env:
-          WM_REFRESH_TOKEN: ${{ secrets.WM_REFRESH_TOKEN }}
-          WM_KEY: ${{ secrets.WM_KEY }}
-          GITHUB_TOKEN: ${{ github.token }}
-          APERCU: ${{ inputs.apercu && '--apercu' || '' }}
-          DUREE: ${{ inputs.duree || '60' }} # planifié : 1 h
-          TOUS: ${{ inputs.tous && '--tous' || '' }}
-        run: node src/vendre.js --duree "$DUREE" $TOUS $APERCU
-      # Le jeton vient d'être remplacé par Supabase : on garde le nouveau, même si la suite a échoué.
-      - if: always() && hashFiles('.session/jeton.enc') != ''
-        uses: actions/cache/save@v4
-        with:
-          path: .session
-          key: wm-session-${{ github.run_id }}-${{ github.run_attempt }}
+          script: src/vendre.js
+          args: --duree ${{ inputs.duree || '60' }} ${{ inputs.tous && '--tous' || '' }} ${{ inputs.apercu && '--apercu' || '' }}
+          step-name: ${{ inputs.apercu && 'Aperçu' || 'Mise en vente' }}
+          refresh-token: ${{ secrets.WM_REFRESH_TOKEN }}
+          key: ${{ secrets.WM_KEY }}
+          github-token: ${{ github.token }}

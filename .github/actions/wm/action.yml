@@ -1,0 +1,55 @@
+name: Commande WikiMasters
+description: >
+  Étapes communes aux workflows WikiMasters : Node, état de l'exécution précédente (.session : jeton de session
+  chiffré, clé Supabase, prix du marché, compteurs), lancement du script, puis sauvegarde de l'état.
+  À appeler après actions/checkout.
+
+inputs:
+  script:
+    description: "Script à lancer, par exemple src/classer.js"
+    required: true
+  args:
+    description: "Arguments du script"
+    required: false
+    default: ''
+  step-name:
+    description: "Nom de l'étape dans le journal"
+    required: false
+    default: 'Commande'
+  refresh-token:
+    description: "Secret WM_REFRESH_TOKEN"
+    required: true
+  key:
+    description: "Secret WM_KEY"
+    required: true
+  github-token:
+    description: "Jeton GitHub du workflow (branche « etat » et issues d'alerte)"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    # État de l'exécution précédente, quel que soit le workflow qui l'a laissé.
+    - uses: actions/cache/restore@v4
+      with:
+        path: .session
+        key: wm-session-${{ github.run_id }}
+        restore-keys: wm-session-
+    - name: ${{ inputs.step-name }}
+      shell: bash
+      env:
+        WM_REFRESH_TOKEN: ${{ inputs.refresh-token }}
+        WM_KEY: ${{ inputs.key }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        SCRIPT: ${{ inputs.script }}
+        ARGS: ${{ inputs.args }}
+      run: node "$SCRIPT" $ARGS
+    # Le jeton vient d'être remplacé par Supabase : on garde le nouveau, même si la suite a échoué.
+    - if: always() && hashFiles('.session/jeton.enc') != ''
+      uses: actions/cache/save@v4
+      with:
+        path: .session
+        key: wm-session-${{ github.run_id }}-${{ github.run_attempt }}

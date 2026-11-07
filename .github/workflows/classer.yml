@@ -32,26 +32,12 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      # Jeton de session de l'exécution précédente (chiffré avec WM_KEY).
-      - uses: actions/cache/restore@v4
-        with:
-          path: .session
-          key: wm-session-${{ github.run_id }}
-          restore-keys: wm-session-
       - run: node test/cases.js
-      - name: Classer
-        env:
-          WM_REFRESH_TOKEN: ${{ secrets.WM_REFRESH_TOKEN }}
-          WM_KEY: ${{ secrets.WM_KEY }}
-          GITHUB_TOKEN: ${{ github.token }}
-          APERCU: ${{ inputs.apercu && '--apercu' || '' }}
-        run: node src/classer.js $APERCU
-      # Le jeton vient d'être remplacé par Supabase : on garde le nouveau, même si la suite a échoué.
-      - if: always() && hashFiles('.session/jeton.enc') != ''
-        uses: actions/cache/save@v4
+      - uses: ./.github/actions/wm
         with:
-          path: .session
-          key: wm-session-${{ github.run_id }}-${{ github.run_attempt }}
+          script: src/classer.js
+          args: ${{ inputs.apercu && '--apercu' || '' }}
+          step-name: Classer
+          refresh-token: ${{ secrets.WM_REFRESH_TOKEN }}
+          key: ${{ secrets.WM_KEY }}
+          github-token: ${{ github.token }}

@@ -6,7 +6,7 @@
 // plus rien tant qu'elle est ouverte : la fermer (après avoir fait la vérification sur le site) le relance.
 // Usage : node src/vente-auto.js [--apercu]   (--apercu : choisit les cartes sans rien mettre en vente)
 const fs = require('fs');
-const {BASE, SB, sleep, pause, req, call, login, tradeIds, summary, esc} = require('./wm');
+const {BASE, SB, sleep, pause, req, call, login, tradeIds, priceCache, summary, esc} = require('./wm');
 
 const DRY = process.argv.includes('--apercu');
 const RARITIES = ['C', 'PC', 'R'];
@@ -35,11 +35,10 @@ async function openPause(why) {
 
   let st = {};
   try { st = JSON.parse(fs.readFileSync(STATE, 'utf8')); } catch {}
-  if (st.day !== today()) st = {day: today(), count: 0, prices: st.prices || {}};
-  st.prices = st.prices || {};
-  const fresh = Date.now() - 7 * 86400000;
-  for (const [k, v] of Object.entries(st.prices)) if (v.at < fresh) delete st.prices[k];
-  const save = () => { fs.mkdirSync('.session', {recursive: true}); fs.writeFileSync(STATE, JSON.stringify(st)); };
+  if (st.day !== today()) st = {day: today(), count: 0};
+  // Les prix vivent désormais dans le cache commun (priceCache), partagé avec Vendre les doublons.
+  const prices = priceCache();
+  const save = () => { delete st.prices; prices.save(); fs.mkdirSync('.session', {recursive: true}); fs.writeFileSync(STATE, JSON.stringify(st)); };
 
   const quota = PAR_JOUR - st.count;
   if (quota <= 0) { summary(`## Vente auto\n\nPlafond du jour atteint (${PAR_JOUR} enchères).`); return; }
@@ -58,7 +57,7 @@ async function openPause(why) {
   // Cartes éligibles : C, PC ou R, ni brillante ni favorite, ni en échange ni déjà en vente.
   const rows = [];
   for (let off = 0; ; off += 1000) {
-    if (off) await sleep(1500);
+    if (off) await sleep(800);
     const page = await (await call('supabase', SB + 'user_cards?select=id,card_id,is_shiny,starred,cards!inner(wikipedia_title,rarity)&is_shiny=eq.false&starred=eq.false&cards.rarity=in.(' + RARITIES.join(',') + ')&user_id=eq.' + s.uid,
       {headers: {...s.sb, Range: off + '-' + (off + 999)}})).json();
     rows.push(...page);
@@ -76,17 +75,8 @@ async function openPause(why) {
     if (picks.length >= n || lookups >= MAX_PRIX) break;
     if (seen.has(r.card_id)) continue;
     seen.add(r.card_id);
-    let p = st.prices[r.card_id];
-    if (!p) {
-      await pause();
-      // Certaines cartes n'ont pas de page marché (« Carte introuvable ») : on les saute.
-      let sum = {};
-      try { sum = (await get('/api/marketplace/cards/' + r.card_id + '/sales?scope=summary')).summary || {}; }
-      catch (e) { if (!/HTTP 404/.test(e.message)) throw e; }
-      p = st.prices[r.card_id] = {at: Date.now(), sum};
-      lookups++;
-    }
-    const x = p.sum[r.cards.rarity];
+    if (!prices.known(r.card_id)) lookups++;
+    const x = (await prices.summary(s.site, r.card_id))[r.cards.rarity];
     if (x && x.count >= MIN_VENTES) picks.push({id: r.id, t: r.cards.wikipedia_title, r: r.cards.rarity, avg: x.average, sales: x.count, base: Math.max(1, Math.round(x.average * REMISE))});
   }
   save();

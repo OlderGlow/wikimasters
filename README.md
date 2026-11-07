@@ -83,12 +83,18 @@ gh variable set VENTE_AUTO --body off --repo OlderGlow/wikimasters
 
 GitHub lance les workflows planifiés « au mieux » : souvent avec une à deux heures de retard, et il en saute parfois. C'est pour ça que Classer a quatre créneaux par jour, et que Vente auto en a un toutes les 3 h. Tu peux toujours lancer un workflow à la main depuis l'onglet Actions.
 
+Les workflows ne tournent jamais en même temps (voir « Discrétion »). Quand l'un tourne, GitHub ne garde qu'**une seule** exécution en attente : si une deuxième arrive, la plus ancienne en attente est annulée (« Canceled » dans l'onglet Actions). Ça arrive rarement, et un créneau suivant rattrape toujours. Si un lancement à la main est annulé ainsi, relance-le simplement.
+
 ## Discrétion
 
 - 2,5 à 3,5 s de pause entre deux requêtes à WikiMasters.
 - En cas d'erreur 429 ou 5xx : 30 s puis 60 s d'attente, et arrêt après 3 échecs.
-- Une seule commande à la fois (`concurrency`).
+- Une seule commande à la fois (`concurrency`) : c'est aussi ce qui évite que deux exécutions renouvellent le même jeton de session.
 - Les cartes déjà étiquetées ne sont jamais relues.
+- Les prix du marché sont gardés 7 jours et partagés entre Vendre les doublons et Vente auto : une carte déjà vue n'est pas redemandée.
+- La clé publique de Supabase est gardée d'une exécution à l'autre : le code du site n'est relu que si Supabase la refuse.
+
+L'état gardé entre deux exécutions (jeton chiffré, clé Supabase, prix, compteur de Vente auto) vit dans le dossier `.session`, restauré et sauvegardé par l'action commune `.github/actions/wm`.
 
 Les requêtes partent des serveurs de GitHub et non de chez toi. Si WikiMasters bloque ces adresses, le workflow s'arrête avec un message clair.
 

@@ -28,24 +28,11 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: ./.github/actions/wm
         with:
-          node-version: 22
-      # Jeton de session et état de la vente auto (compteur du jour, prix), de l'exécution précédente.
-      - uses: actions/cache/restore@v4
-        with:
-          path: .session
-          key: wm-session-${{ github.run_id }}
-          restore-keys: wm-session-
-      - name: Vente auto
-        env:
-          WM_REFRESH_TOKEN: ${{ secrets.WM_REFRESH_TOKEN }}
-          WM_KEY: ${{ secrets.WM_KEY }}
-          GITHUB_TOKEN: ${{ github.token }}
-          APERCU: ${{ inputs.apercu && '--apercu' || '' }}
-        run: node src/vente-auto.js $APERCU
-      - if: always() && hashFiles('.session/jeton.enc') != ''
-        uses: actions/cache/save@v4
-        with:
-          path: .session
-          key: wm-session-${{ github.run_id }}-${{ github.run_attempt }}
+          script: src/vente-auto.js
+          args: ${{ inputs.apercu && '--apercu' || '' }}
+          step-name: Vente auto
+          refresh-token: ${{ secrets.WM_REFRESH_TOKEN }}
+          key: ${{ secrets.WM_KEY }}
+          github-token: ${{ github.token }}

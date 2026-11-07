@@ -2,7 +2,7 @@
 //   node src/vendre.js            → mise en vente directe, dans la limite des places d'enchère libres ;
 //   node src/vendre.js --apercu   → liste et mises seulement, n'écrit rien.
 // Options : --duree MIN (10, 30, 60, 180, 360 ou 720 ; 720 par défaut), --tous (inclure les jamais vendues, mise 1).
-const {BASE, SB, sleep, pause, req, call, login, tradeIds, summary, esc} = require('./wm');
+const {BASE, SB, sleep, pause, req, call, login, tradeIds, priceCache, summary, esc} = require('./wm');
 
 const arg = name => { const i = process.argv.indexOf('--' + name); return i > 0 ? (process.argv[i + 1] || '').trim() : ''; };
 const DUREE = [10, 30, 60, 180, 360, 720].includes(Number(arg('duree'))) ? Number(arg('duree')) : 720;
@@ -16,7 +16,7 @@ const APERCU = process.argv.includes('--apercu');
   // Chaque exemplaire est une ligne à part dans user_cards : un doublon = plusieurs lignes pour la même carte.
   const rows = [];
   for (let off = 0; ; off += 1000) {
-    if (off) await sleep(2000);
+    if (off) await sleep(800);
     const page = await (await call('supabase', SB + 'user_cards?select=id,card_id,is_shiny,starred,cards(wikipedia_title,rarity)&user_id=eq.' + s.uid,
       {headers: {...s.sb, Range: off + '-' + (off + 999)}})).json();
     rows.push(...page);
@@ -45,14 +45,11 @@ const APERCU = process.argv.includes('--apercu');
     normal.slice(0, n).forEach(r => spares.push({id: r.id, card_id: r.card_id, t, r: rar}));
   }
 
-  // Prix : résumé des ventes de chaque carte en double, même rareté.
-  const price = {};
-  for (const c of [...new Set(spares.map(x => x.card_id))]) {
-    await pause();
-    // Certaines cartes n'ont pas de page marché (« Carte introuvable ») : on les compte comme jamais vendues.
-    try { price[c] = (await get('/api/marketplace/cards/' + c + '/sales?scope=summary')).summary || {}; }
-    catch (e) { if (!/HTTP 404/.test(e.message)) throw e; price[c] = {}; }
-  }
+  // Prix : résumé des ventes de chaque carte en double, même rareté. Les prix connus depuis moins de 7 jours
+  // (par une exécution précédente ou par Vente auto) ne sont pas redemandés.
+  const prices = priceCache(), price = {};
+  try { for (const c of [...new Set(spares.map(x => x.card_id))]) price[c] = await prices.summary(s.site, c); }
+  finally { prices.save(); }
   const unsold = [], all = [];
   for (const x of spares) {
     const st = price[x.card_id][x.r];
