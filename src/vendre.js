@@ -86,7 +86,7 @@ const APERCU = process.argv.includes('--apercu');
   summary([
     APERCU ? '## Aperçu de la vente des doublons' : '## Vente des doublons',
     '',
-    !items.length ? `Aucun doublon à mettre en vente. Places d'enchère libres : ${free}/${max}.`
+    !items.length ? (overflow.length ? `Aucune place d'enchère libre (${free}/${max}) : relance quand tes enchères en cours seront terminées.` : `Aucun doublon à mettre en vente. Places d'enchère libres : ${free}/${max}.`)
       : APERCU ? `**${items.length} cartes** seraient mises aux enchères pendant ${h}, pour **${items.reduce((t, x) => t + x.base, 0)} WikiCoins** de mises de départ. Rien n'a été mis en vente. Places d'enchère libres : ${free}/${max}.`
       : `**${listed.length}/${items.length} cartes** mises aux enchères pendant ${h}, pour **${listed.reduce((t, x) => t + x.base, 0)} WikiCoins** de mises de départ (minimum gagné si chaque carte trouve preneur, sans garantie).`,
     '',
