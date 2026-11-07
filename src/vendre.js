@@ -63,7 +63,10 @@ const TOUS = process.argv.includes('--tous');
     else unsold.push(x);
   }
   all.sort((a, b) => b.base - a.base || String(a.id).localeCompare(String(b.id)));
-  const items = all.slice(0, free), overflow = all.slice(free);
+  // À la confirmation, on reprend les N premières cartes de l'aperçu : une enchère terminée entre-temps libère
+  // une place sans invalider le code. S'il y a moins de places que N, la liste change et le code ne correspond plus.
+  const n = NOMBRE && Number(NOMBRE) <= free ? Number(NOMBRE) : free;
+  const items = all.slice(0, n), overflow = all.slice(n);
   // Le code couvre les cartes, leurs mises et la durée : si l'un change, la confirmation ne vaut plus.
   const code = crypto.createHash('sha256').update(items.map(x => x.id + ':' + x.base).join(',') + '|' + DUREE).digest('hex').slice(0, 8);
   const total = items.reduce((t, x) => t + x.base, 0);
