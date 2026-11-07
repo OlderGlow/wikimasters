@@ -2,7 +2,11 @@ name: Vendre les doublons
 
 # Met aux enchères les exemplaires en trop, au prix moyen de leurs ventes passées, dans la limite des places libres.
 # La liste des cartes mises en vente s'affiche dans le résumé du job.
+# Une fois par jour, entre deux passages de Vente auto (:23 toutes les 3 h), avec des enchères d'1 h
+# terminées avant le passage suivant. Pour l'arrêter : variable VENTE_DOUBLONS = off.
 on:
+  schedule:
+    - cron: '53 13 * * *' # vers 14 h 53 (heure de Paris en hiver)
   workflow_dispatch:
     inputs:
       apercu:
@@ -29,6 +33,8 @@ permissions:
 
 jobs:
   vendre:
+    # La variable ne bloque que l'exécution planifiée : un lancement à la main passe toujours.
+    if: github.event_name != 'schedule' || vars.VENTE_DOUBLONS != 'off'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -48,7 +54,7 @@ jobs:
           WM_KEY: ${{ secrets.WM_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
           APERCU: ${{ inputs.apercu && '--apercu' || '' }}
-          DUREE: ${{ inputs.duree }}
+          DUREE: ${{ inputs.duree || '60' }} # planifié : 1 h
           TOUS: ${{ inputs.tous && '--tous' || '' }}
         run: node src/vendre.js --duree "$DUREE" $TOUS $APERCU
       # Le jeton vient d'être remplacé par Supabase : on garde le nouveau, même si la suite a échoué.

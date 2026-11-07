@@ -32,7 +32,7 @@ GitHub masque les secrets dans les journaux, et les scripts n'affichent aucun je
 |---|---|---|
 | **Classer** | 4 fois par jour (vers 6 h, 12 h, 17 h et 22 h), ou à la demande | étiquette les cartes qui n'ont encore aucune étiquette, puis publie la répartition et la liste des « à classer » dans le résumé du job. Quand les règles changent, il reprend aussi les cartes « à classer » et range celles qu'il sait désormais classer |
 | **Défausser** | à la demande seulement | en deux exécutions : un aperçu, puis la défausse confirmée |
-| **Vendre les doublons** | à la demande seulement | met les doublons aux enchères, dans la limite des places libres |
+| **Vendre les doublons** | une fois par jour (vers 14 h 53), ou à la demande | met les doublons aux enchères, dans la limite des places libres |
 | **Vente auto** | toutes les 3 h | remplit les places d'enchère libres avec des cartes C, PC ou R au hasard, pour 30 min |
 | **Tests** | à chaque modification des règles | vérifie `src/classify.js` sur `test/cases.txt` |
 
@@ -58,6 +58,11 @@ Lance **Vendre les doublons** en choisissant la durée des enchères (12 h par d
 Une exécution remplit les places d'enchère libres (10 pour un compte Pro, 5 sinon), en commençant par les mises les plus hautes. Les doublons restants sont listés dans le résumé : relance le workflow quand des places se libèrent.
 
 Si le site demande une vérification humaine, le workflow s'arrête : mets toi-même une carte aux enchères sur le site, puis relance.
+
+Le workflow tourne aussi tout seul **une fois par jour, vers 14 h 53** (heure de Paris en hiver), avec des enchères d'**1 h**, sans les doublons jamais vendus. Ce créneau tombe entre deux passages de Vente auto, et les enchères se terminent avant le passage suivant : elles ne lui prennent pas de places. Pour arrêter la vente planifiée, crée la variable `VENTE_DOUBLONS` avec la valeur `off` (supprime-la pour relancer). Le lancement à la main marche toujours :
+```bash
+gh variable set VENTE_DOUBLONS --body off --repo OlderGlow/wikimasters
+```
 
 ### Vente auto
 
